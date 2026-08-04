@@ -2,6 +2,12 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import CarGallery from "@/components/CarGallery";
+import {
+  Calendar,
+  DollarSign,
+  Car,
+  Images,
+} from "lucide-react";
 
 type Props = {
   params: Promise<{
@@ -33,9 +39,9 @@ export default async function CarDetailsPage({
       : [car.image];
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white py-20 px-6">
+    <main className="min-h-screen bg-slate-950 text-white pt-32 pb-24 px-6">
 
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-14">
+      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16">
 
         {/* Gallery */}
 
@@ -45,57 +51,107 @@ export default async function CarDetailsPage({
 
         <div>
 
-          <p className="text-blue-400 text-lg font-bold mb-2">
+          <p className="text-blue-400 text-xl font-bold uppercase tracking-[6px]">
             {car.brand}
           </p>
 
-          <h1 className="text-5xl font-bold mb-6">
+          <h1 className="text-6xl font-black mt-2 mb-8">
             {car.model}
           </h1>
 
-          <div className="space-y-5 text-xl">
+          {/* INFO CARD */}
 
-            <div className="flex justify-between border-b border-slate-800 pb-4">
-              <span>سال ساخت</span>
-              <span>{car.year}</span>
+          <div className="rounded-3xl bg-slate-900 border border-white/10 p-8 space-y-6">
+
+            <div className="flex justify-between items-center">
+
+              <div className="flex items-center gap-3">
+
+                <Calendar size={22} />
+
+                <span>سال ساخت</span>
+
+              </div>
+
+              <span className="font-bold text-xl">
+                {car.year}
+              </span>
+
             </div>
 
-            <div className="flex justify-between border-b border-slate-800 pb-4">
-              <span>قیمت</span>
+            <div className="border-t border-white/10"></div>
 
-              <span className="text-blue-400 font-bold">
+            <div className="flex justify-between items-center">
+
+              <div className="flex items-center gap-3">
+
+                <DollarSign size={22} />
+
+                <span>قیمت</span>
+
+              </div>
+
+              <span className="text-4xl font-black text-blue-400">
                 {car.price}
+              </span>
+
+            </div>
+
+            <div className="border-t border-white/10"></div>
+
+            <div className="flex justify-between items-center">
+
+              <div className="flex items-center gap-3">
+
+                <Images size={22} />
+
+                <span>تصاویر</span>
+
+              </div>
+
+              <span className="font-bold">
+                {galleryImages.length}
               </span>
 
             </div>
 
           </div>
 
-          <div className="mt-10">
+          {/* DESCRIPTION */}
 
-            <h2 className="text-2xl font-bold mb-4">
-              توضیحات
-            </h2>
+          <div className="mt-10 rounded-3xl bg-slate-900 border border-white/10 p-8">
 
-            <p className="text-gray-300 leading-8">
+            <div className="flex items-center gap-3 mb-5">
+
+              <Car size={24} />
+
+              <h2 className="text-2xl font-bold">
+                توضیحات خودرو
+              </h2>
+
+            </div>
+
+            <p className="text-gray-300 leading-9 text-lg">
               {car.description ||
-                "توضیحی ثبت نشده است."}
+                "توضیحی برای این خودرو ثبت نشده است."}
             </p>
 
           </div>
+
+          {/* BUTTONS */}
 
           <div className="mt-12 flex gap-4">
 
             <Link
               href={`/order?carId=${car.id}`}
-              className="flex-1 bg-blue-600 hover:bg-blue-500 text-center py-4 rounded-2xl font-bold text-lg transition"
+              className="flex-1 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 py-4 text-center text-xl font-black hover:scale-[1.02] duration-300"
             >
               ثبت سفارش
             </Link>
 
             <Link
               href="/cars"
-              className="px-8 py-4 rounded-2xl border border-slate-700 hover:bg-slate-900 transition"
+              className="px-8 py-4 rounded-2xl border border-white/10 hover:border-blue-500 hover:bg-slate-900 duration-300"
             >
               بازگشت
             </Link>

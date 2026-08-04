@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -24,10 +24,7 @@ model Car {
   description String?
   createdAt   DateTime @default(now())
 
-  // تصاویر خودرو
   images CarImage[]
-
-  // سفارش‌ها
   orders Order[]
 }
 
@@ -49,5 +46,5 @@ model Order {
   createdAt DateTime @default(now())
 
   carId Int
-  car   Car @relation(fields: [carId], references: [id])
+  car   Car @relation(fields: [carId], references: [id], onDelete: Cascade)
 }

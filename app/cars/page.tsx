@@ -21,7 +21,6 @@ export default async function CarsPage({
           ? {
               brand: {
                 contains: brand,
-                mode: "insensitive",
               },
             }
           : {},
@@ -30,7 +29,6 @@ export default async function CarsPage({
           ? {
               model: {
                 contains: model,
-                mode: "insensitive",
               },
             }
           : {},
@@ -44,6 +42,9 @@ export default async function CarsPage({
     },
     orderBy: {
       createdAt: "desc",
+    },
+    include: {
+      images: true,
     },
   });
 
