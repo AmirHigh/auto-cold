@@ -5,8 +5,12 @@ const secret = new TextEncoder().encode(
 );
 
 export async function createToken(userId: number) {
-  return await new SignJWT({ userId })
-    .setProtectedHeader({ alg: "HS256" })
+  return await new SignJWT({
+    userId,
+  })
+    .setProtectedHeader({
+      alg: "HS256",
+    })
     .setIssuedAt()
     .setExpirationTime("7d")
     .sign(secret);
@@ -14,7 +18,11 @@ export async function createToken(userId: number) {
 
 export async function verifyToken(token: string) {
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(
+      token,
+      secret
+    );
+
     return payload;
   } catch {
     return null;

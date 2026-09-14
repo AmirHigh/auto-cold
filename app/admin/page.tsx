@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
 import AdminToast from "@/components/AdminToast";
 import CarTable from "@/components/CarTable";
-import { deleteCar } from "./add-car/actions";
+import OrderStatusSelect from "@/components/OrderStatusSelect";
+import OrderActions from "@/components/OrderActions";
 
 import {
   Car,
@@ -48,36 +48,46 @@ export default async function AdminPage({
   }).length;
 
   const totalValue = cars.reduce((sum, car) => {
-    const price = Number(car.price.replace(/[^0-9]/g, ""));
+    const price = Number(
+      car.price.replace(/[^0-9]/g, "")
+    );
 
     return sum + (isNaN(price) ? 0 : price);
   }, 0);
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white p-10">
-
+    <main className="min-h-screen bg-slate-950 text-white p-6">
       <AdminToast success={success} />
 
       <div className="max-w-7xl mx-auto">
 
+        {/* Header */}
         <div className="flex items-center justify-between mb-10 border-b border-slate-800 pb-6">
+          <div>
+            <p className="text-blue-400 font-bold mb-2">
+              AUTO COLD
+            </p>
 
-          <h1 className="text-4xl font-bold text-blue-400">
-            پنل مدیریت AUTO COLD
-          </h1>
+            <h1 className="text-4xl font-bold text-white">
+              پنل مدیریت
+            </h1>
+
+            <p className="text-gray-400 mt-2">
+              مدیریت خودروها و سفارش‌های مشتریان
+            </p>
+          </div>
 
           <LogoutButton />
-
         </div>
 
+        {/* Statistics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
 
+          {/* Cars */}
           <div className="bg-slate-900 rounded-2xl border border-blue-500/20 p-6">
-
             <div className="flex items-center justify-between">
 
               <div>
-
                 <p className="text-gray-400">
                   خودروها
                 </p>
@@ -85,24 +95,20 @@ export default async function AdminPage({
                 <h2 className="text-4xl font-bold text-blue-400 mt-3">
                   {totalCars}
                 </h2>
-
               </div>
 
               <Car
                 size={42}
                 className="text-blue-400"
               />
-
             </div>
-
           </div>
 
+          {/* Orders */}
           <div className="bg-slate-900 rounded-2xl border border-green-500/20 p-6">
-
             <div className="flex items-center justify-between">
 
               <div>
-
                 <p className="text-gray-400">
                   سفارش‌ها
                 </p>
@@ -110,49 +116,41 @@ export default async function AdminPage({
                 <h2 className="text-4xl font-bold text-green-400 mt-3">
                   {totalOrders}
                 </h2>
-
               </div>
 
               <ShoppingCart
                 size={42}
                 className="text-green-400"
               />
-
             </div>
-
           </div>
 
+          {/* Today */}
           <div className="bg-slate-900 rounded-2xl border border-yellow-500/20 p-6">
-
             <div className="flex items-center justify-between">
 
               <div>
-
                 <p className="text-gray-400">
-                  امروز
+                  سفارش‌های امروز
                 </p>
 
                 <h2 className="text-4xl font-bold text-yellow-400 mt-3">
                   {todayOrders}
                 </h2>
-
               </div>
 
               <CalendarDays
                 size={42}
                 className="text-yellow-400"
               />
-
             </div>
-
           </div>
 
+          {/* Value */}
           <div className="bg-slate-900 rounded-2xl border border-purple-500/20 p-6">
-
             <div className="flex items-center justify-between">
 
               <div>
-
                 <p className="text-gray-400">
                   ارزش خودروها
                 </p>
@@ -160,101 +158,170 @@ export default async function AdminPage({
                 <h2 className="text-3xl font-bold text-purple-400 mt-3">
                   ${totalValue.toLocaleString()}
                 </h2>
-
               </div>
 
               <DollarSign
                 size={42}
                 className="text-purple-400"
               />
-
             </div>
-
           </div>
 
         </div>
+
         {/* Orders */}
+        <section className="mb-12">
 
-<h2 className="text-3xl font-bold mb-6">
-  سفارش‌های ثبت شده
-</h2>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold">
+              سفارش‌های مشتریان
+            </h2>
 
-<div className="overflow-x-auto rounded-3xl border border-blue-500/20 mb-16">
+            <p className="text-gray-400 mt-2">
+              مشاهده و مدیریت سفارش‌های ثبت‌شده
+            </p>
+          </div>
 
-  <table className="w-full">
+          <div className="overflow-x-auto rounded-3xl border border-white/10 bg-slate-900">
 
-    <thead className="bg-slate-900">
+            <table className="w-full min-w-[1200px]">
 
-      <tr>
-        <th className="p-4 text-right">خودرو</th>
-        <th className="p-4 text-right">نام مشتری</th>
-        <th className="p-4 text-right">شماره</th>
-        <th className="p-4 text-right">ایمیل</th>
-        <th className="p-4 text-right">تاریخ</th>
-      </tr>
+              <thead className="bg-slate-950">
 
-    </thead>
+                <tr>
+                  <th className="p-4 text-right">
+                    خودرو
+                  </th>
 
-    <tbody>
+                  <th className="p-4 text-right">
+                    نام مشتری
+                  </th>
 
-      {orders.map((order) => (
+                  <th className="p-4 text-right">
+                    شماره
+                  </th>
 
-        <tr
-          key={order.id}
-          className="border-t border-slate-800 hover:bg-slate-900"
-        >
+                  <th className="p-4 text-right">
+                    ایمیل
+                  </th>
 
-          <td className="p-4">
-            {order.car.brand} {order.car.model}
-          </td>
+                  <th className="p-4 text-right">
+                    تاریخ
+                  </th>
 
-          <td className="p-4">
-            {order.fullName}
-          </td>
+                  <th className="p-4 text-right">
+                    وضعیت
+                  </th>
 
-          <td className="p-4">
-            {order.phone}
-          </td>
+                  <th className="p-4 text-right">
+                    عملیات
+                  </th>
+                </tr>
 
-          <td className="p-4">
-            {order.email || "-"}
-          </td>
+              </thead>
 
-          <td className="p-4">
-            {order.createdAt.toLocaleDateString()}
-          </td>
+              <tbody>
 
-        </tr>
+                {orders.length === 0 ? (
 
-      ))}
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="p-10 text-center text-gray-400"
+                    >
+                      هنوز سفارشی ثبت نشده است.
+                    </td>
+                  </tr>
 
-    </tbody>
+                ) : (
 
-  </table>
+                  orders.map((order) => (
 
-</div>
+                    <tr
+                      key={order.id}
+                      className="border-t border-slate-800 hover:bg-slate-800/50 transition"
+                    >
 
-{/* Cars */}
+                      {/* Car */}
+                      <td className="p-4">
+                        <div>
+                          <p className="font-bold">
+                            {order.car.brand}{" "}
+                            {order.car.model}
+                          </p>
 
-<div className="flex items-center justify-between mb-8">
+                          <p className="text-sm text-gray-500">
+                            {order.car.year}
+                          </p>
+                        </div>
+                      </td>
 
-  <h2 className="text-3xl font-bold text-blue-400">
-    مدیریت خودروها
-  </h2>
+                      {/* Customer */}
+                      <td className="p-4">
+                        {order.fullName}
+                      </td>
 
-  <Link
-    href="/admin/add-car"
-    className="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-xl font-bold"
-  >
-    + افزودن خودرو
-  </Link>
+                      {/* Phone */}
+                      <td className="p-4 text-gray-300">
+                        {order.phone}
+                      </td>
 
-</div>
+                      {/* Email */}
+                      <td className="p-4 text-gray-300">
+                        {order.email || "-"}
+                      </td>
 
-<CarTable
-  cars={cars}
-  deleteAction={deleteCar}
-/>
+                      {/* Date */}
+                      <td className="p-4 text-gray-400 whitespace-nowrap">
+                        {order.createdAt.toLocaleDateString(
+                          "fa-IR"
+                        )}
+                      </td>
+
+                      {/* Status */}
+                      <td className="p-4">
+                        <OrderStatusSelect
+                          orderId={order.id}
+                          currentStatus={order.status}
+                        />
+                      </td>
+
+                      {/* Actions */}
+                      <td className="p-4">
+                        <OrderActions order={order} />
+                      </td>
+
+                    </tr>
+
+                  ))
+
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+        {/* Cars */}
+        <section>
+
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold">
+              مدیریت خودروها
+            </h2>
+
+            <p className="text-gray-400 mt-2">
+              جستجو، ویرایش و حذف خودروهای موجود
+            </p>
+          </div>
+
+          <CarTable cars={cars} />
+
+        </section>
+
       </div>
     </main>
   );

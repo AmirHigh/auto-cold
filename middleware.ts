@@ -5,13 +5,17 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get("session")?.value;
 
   if (!token) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    return NextResponse.redirect(
+      new URL("/login", req.url)
+    );
   }
 
   const payload = await verifyToken(token);
 
   if (!payload) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    return NextResponse.redirect(
+      new URL("/login", req.url)
+    );
   }
 
   return NextResponse.next();

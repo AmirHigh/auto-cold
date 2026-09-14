@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import DeleteButton from "./DeleteButton";
+import { deleteCar } from "@/app/admin/actions";
 
 type Car = {
   id: number;
@@ -16,17 +17,15 @@ type Car = {
 
 type Props = {
   cars: Car[];
-  deleteAction: (id: number) => Promise<void>;
 };
 
-export default function CarTable({
-  cars,
-  deleteAction,
-}: Props) {
+export default function CarTable({ cars }: Props) {
   const [search, setSearch] = useState("");
 
   const filteredCars = useMemo(() => {
-    if (!search.trim()) return cars;
+    if (!search.trim()) {
+      return cars;
+    }
 
     return cars.filter((car) =>
       `${car.brand} ${car.model} ${car.year}`
@@ -37,17 +36,18 @@ export default function CarTable({
 
   return (
     <div className="space-y-6">
+      {/* Search */}
       <input
-        key="search"
         type="text"
         autoComplete="off"
         spellCheck={false}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="🔍 جستجوی برند، مدل یا سال..."
-        className="w-full p-4 rounded-xl bg-white text-black border-2 border-blue-500 outline-none"
+        className="w-full rounded-xl border-2 border-blue-500 bg-white p-4 text-black outline-none"
       />
 
+      {/* Table */}
       <div className="overflow-x-auto rounded-3xl border border-blue-500/20">
         <table className="w-full">
           <thead className="bg-slate-900">
@@ -65,6 +65,7 @@ export default function CarTable({
                 key={car.id}
                 className="border-t border-slate-800 hover:bg-slate-900"
               >
+                {/* Car */}
                 <td className="p-4">
                   <div className="flex items-center gap-4">
                     <Image
@@ -72,32 +73,42 @@ export default function CarTable({
                       alt={car.model}
                       width={80}
                       height={60}
-                      className="rounded-xl w-20 h-14 object-cover"
+                      className="h-14 w-20 rounded-xl object-cover"
                     />
 
                     <div>
                       <p className="font-bold">{car.brand}</p>
-                      <p className="text-sm text-gray-400">{car.model}</p>
+
+                      <p className="text-sm text-gray-400">
+                        {car.model}
+                      </p>
                     </div>
                   </div>
                 </td>
 
-                <td className="p-4">{car.year}</td>
+                {/* Year */}
+                <td className="p-4">
+                  {car.year}
+                </td>
 
-                <td className="p-4 text-green-400 font-bold">
+                {/* Price */}
+                <td className="p-4 font-bold text-green-400">
                   {car.price}
                 </td>
 
+                {/* Actions */}
                 <td className="p-4">
                   <div className="flex justify-center gap-3">
+                    {/* Edit */}
                     <Link
                       href={`/admin/edit-car/${car.id}`}
-                      className="bg-yellow-500 hover:bg-yellow-400 px-4 py-2 rounded-lg"
+                      className="rounded-lg bg-yellow-500 px-4 py-2 hover:bg-yellow-400"
                     >
                       ویرایش
                     </Link>
 
-                    <form action={deleteAction.bind(null, car.id)}>
+                    {/* Delete */}
+                    <form action={deleteCar.bind(null, car.id)}>
                       <DeleteButton />
                     </form>
                   </div>
@@ -105,11 +116,12 @@ export default function CarTable({
               </tr>
             ))}
 
+            {/* Empty */}
             {filteredCars.length === 0 && (
               <tr>
                 <td
                   colSpan={4}
-                  className="text-center p-8 text-gray-400"
+                  className="p-8 text-center text-gray-400"
                 >
                   خودرویی پیدا نشد.
                 </td>

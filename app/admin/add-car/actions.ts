@@ -4,16 +4,20 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
+// =========================
+// CREATE CAR
+// =========================
+
 export async function createCar(formData: FormData) {
-  const brand = formData.get("brand") as string;
-  const model = formData.get("model") as string;
+  const brand = String(formData.get("brand") || "");
+  const model = String(formData.get("model") || "");
   const year = Number(formData.get("year"));
-  const price = formData.get("price") as string;
-  const image = formData.get("image") as string;
-  const description = formData.get("description") as string;
+  const price = String(formData.get("price") || "");
+  const image = String(formData.get("image") || "");
+  const description = String(formData.get("description") || "");
 
   const images = JSON.parse(
-    (formData.get("images") as string) || "[]"
+    String(formData.get("images") || "[]")
   ) as string[];
 
   const car = await prisma.car.create({
@@ -27,6 +31,7 @@ export async function createCar(formData: FormData) {
     },
   });
 
+  // تصاویر اضافی
   if (images.length > 0) {
     await prisma.carImage.createMany({
       data: images.map((img) => ({
@@ -42,20 +47,25 @@ export async function createCar(formData: FormData) {
   redirect("/admin?success=created");
 }
 
+// =========================
+// UPDATE CAR
+// =========================
+
 export async function updateCar(formData: FormData) {
   const id = Number(formData.get("id"));
 
-  const brand = formData.get("brand") as string;
-  const model = formData.get("model") as string;
+  const brand = String(formData.get("brand") || "");
+  const model = String(formData.get("model") || "");
   const year = Number(formData.get("year"));
-  const price = formData.get("price") as string;
-  const image = formData.get("image") as string;
-  const description = formData.get("description") as string;
+  const price = String(formData.get("price") || "");
+  const image = String(formData.get("image") || "");
+  const description = String(formData.get("description") || "");
 
   const images = JSON.parse(
-    (formData.get("images") as string) || "[]"
+    String(formData.get("images") || "[]")
   ) as string[];
 
+  // آپدیت خودرو
   await prisma.car.update({
     where: {
       id,
@@ -70,12 +80,14 @@ export async function updateCar(formData: FormData) {
     },
   });
 
+  // حذف تصاویر قبلی
   await prisma.carImage.deleteMany({
     where: {
       carId: id,
     },
   });
 
+  // ثبت تصاویر جدید
   if (images.length > 0) {
     await prisma.carImage.createMany({
       data: images.map((img) => ({
@@ -91,19 +103,26 @@ export async function updateCar(formData: FormData) {
   redirect("/admin?success=updated");
 }
 
+// =========================
+// DELETE CAR
+// =========================
+
 export async function deleteCar(id: number) {
+  // حذف سفارش‌های مربوط به خودرو
   await prisma.order.deleteMany({
     where: {
       carId: id,
     },
   });
 
+  // حذف تصاویر مربوط به خودرو
   await prisma.carImage.deleteMany({
     where: {
       carId: id,
     },
   });
 
+  // حذف خود خودرو
   await prisma.car.delete({
     where: {
       id,

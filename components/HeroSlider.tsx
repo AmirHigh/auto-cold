@@ -5,7 +5,12 @@ import Image from "next/image";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { Navigation, Pagination, Autoplay, EffectFade } from "swiper/modules";
+import {
+  Navigation,
+  Pagination,
+  Autoplay,
+  EffectFade,
+} from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -27,8 +32,17 @@ type Props = {
 
 export default function HeroSlider({ cars }: Props) {
   return (
-    <section className="relative h-[92vh]">
-
+    <section
+      className="
+        relative
+        h-[72vh]
+        min-h-[520px]
+        sm:h-[78vh]
+        sm:min-h-[580px]
+        md:h-[92vh]
+        md:min-h-0
+      "
+    >
       <Swiper
         modules={[
           Navigation,
@@ -48,73 +62,188 @@ export default function HeroSlider({ cars }: Props) {
       >
         {cars.map((car) => (
           <SwiperSlide key={car.id}>
+            <div className="relative h-full w-full bg-slate-950">
 
-            <div className="relative h-full">
+              {/* =========================
+                  CAR IMAGE
+                  ========================= */}
 
               <Image
                 src={car.image}
-                alt={car.model}
+                alt={`${car.brand} ${car.model}`}
                 fill
                 priority
-                className="object-cover"
+                sizes="100vw"
+                className="
+                  object-contain
+                  object-center
+                  md:object-cover
+                "
               />
 
-              <div className="absolute inset-0 bg-black/55" />
+              {/* Dark overlay */}
+              <div className="absolute inset-0 bg-black/50 md:bg-black/55" />
+
+              {/* =========================
+                  CONTENT
+                  ========================= */}
 
               <div className="absolute inset-0 flex items-center">
+                <div
+                  className="
+                    w-full
+                    max-w-7xl
+                    mx-auto
+                    px-5
+                    sm:px-8
+                    lg:px-8
+                  "
+                >
+                  <div
+                    className="
+                      max-w-2xl
+                      pt-16
+                      sm:pt-12
+                      md:pt-0
+                    "
+                  >
 
-                <div className="max-w-7xl mx-auto px-8 w-full">
-
-                  <div className="max-w-2xl">
-
-                    <p className="text-blue-400 text-xl font-bold mb-3">
+                    {/* AUTO COLD */}
+                    <p
+                      className="
+                        text-blue-400
+                        text-sm
+                        sm:text-lg
+                        md:text-xl
+                        font-bold
+                        mb-2
+                        sm:mb-3
+                      "
+                    >
                       AUTO COLD
                     </p>
 
-                    <h1 className="text-6xl font-black leading-tight text-white">
+                    {/* CAR NAME */}
+                    <h1
+                      className="
+                        text-4xl
+                        sm:text-5xl
+                        md:text-6xl
+                        lg:text-7xl
+                        font-black
+                        leading-[1.05]
+                        sm:leading-tight
+                        text-white
+                        break-words
+                        max-w-[90vw]
+                        sm:max-w-2xl
+                      "
+                    >
                       {car.brand}
                       <br />
-                      {car.model}
+                      <span>{car.model}</span>
                     </h1>
 
-                    <p className="mt-6 text-gray-300 text-xl">
+                    {/* SUBTITLE */}
+                    <p
+                      className="
+                        mt-3
+                        sm:mt-5
+                        md:mt-6
+                        text-gray-300
+                        text-sm
+                        sm:text-lg
+                        md:text-xl
+                      "
+                    >
                       Luxury Car Gallery
                     </p>
 
-                    <p className="mt-6 text-3xl font-bold text-blue-400">
+                    {/* PRICE */}
+                    <p
+                      className="
+                        mt-3
+                        sm:mt-5
+                        md:mt-6
+                        text-2xl
+                        sm:text-3xl
+                        font-bold
+                        text-blue-400
+                      "
+                    >
                       {car.price}
                     </p>
 
-                    <div className="flex gap-5 mt-10">
-
+                    {/* BUTTONS */}
+                    <div
+                      className="
+                        flex
+                        flex-col
+                        sm:flex-row
+                        gap-3
+                        sm:gap-5
+                        mt-6
+                        sm:mt-8
+                        md:mt-10
+                        w-full
+                        sm:w-auto
+                      "
+                    >
                       <Link
                         href={`/cars/${car.id}`}
-                        className="bg-blue-600 hover:bg-blue-500 transition px-8 py-4 rounded-xl font-bold"
+                        className="
+                          flex
+                          items-center
+                          justify-center
+                          bg-blue-600
+                          hover:bg-blue-500
+                          transition
+                          px-6
+                          sm:px-8
+                          py-3
+                          sm:py-4
+                          rounded-xl
+                          font-bold
+                          text-white
+                          w-full
+                          sm:w-auto
+                        "
                       >
                         مشاهده خودرو
                       </Link>
 
                       <Link
                         href="/cars"
-                        className="border border-white/40 hover:bg-white/10 transition px-8 py-4 rounded-xl"
+                        className="
+                          flex
+                          items-center
+                          justify-center
+                          border
+                          border-white/40
+                          hover:bg-white/10
+                          transition
+                          px-6
+                          sm:px-8
+                          py-3
+                          sm:py-4
+                          rounded-xl
+                          text-white
+                          w-full
+                          sm:w-auto
+                        "
                       >
                         مشاهده همه خودروها
                       </Link>
-
                     </div>
 
                   </div>
-
                 </div>
-
               </div>
 
             </div>
-
           </SwiperSlide>
         ))}
       </Swiper>
-
     </section>
   );
 }

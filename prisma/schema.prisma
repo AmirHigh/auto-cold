@@ -7,44 +7,55 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
-  role     String @default("ADMIN")
-}
-
 model Car {
-  id          Int      @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   brand       String
   model       String
   year        Int
   price       String
   image       String
   description String?
-  createdAt   DateTime @default(now())
 
-  images CarImage[]
-  orders Order[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  images      CarImage[]
+  orders      Order[]
 }
 
 model CarImage {
   id        Int      @id @default(autoincrement())
   image     String
-  createdAt DateTime @default(now())
 
-  carId Int
-  car   Car @relation(fields: [carId], references: [id], onDelete: Cascade)
+  carId     Int
+  car       Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
+
 
 model Order {
   id        Int      @id @default(autoincrement())
+
   fullName  String
   phone     String
   email     String?
   message   String?
-  createdAt DateTime @default(now())
 
-  carId Int
-  car   Car @relation(fields: [carId], references: [id], onDelete: Cascade)
+  status    String   @default("NEW")
+
+  carId     Int
+  car       Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
