@@ -5,11 +5,18 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
 
-    const file = formData.get("file") as File;
+    const file = formData.get("file");
 
-    if (!file) {
+    if (!(file instanceof File)) {
       return NextResponse.json(
-        { error: "No file uploaded." },
+        { success: false, error: "No file uploaded." },
+        { status: 400 }
+      );
+    }
+
+    if (file.size === 0) {
+      return NextResponse.json(
+        { success: false, error: "File is empty." },
         { status: 400 }
       );
     }
@@ -18,17 +25,21 @@ export async function POST(req: Request) {
     const buffer = Buffer.from(bytes);
 
     const uploadResult = await new Promise<any>((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          {
-            folder: "auto-cold",
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: "auto-cold",
+          resource_type: "image",
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
           }
-        )
-        .end(buffer);
+        }
+      );
+
+      stream.end(buffer);
     });
 
     return NextResponse.json({
@@ -36,16 +47,17 @@ export async function POST(req: Request) {
       imageUrl: uploadResult.secure_url,
     });
   } catch (error) {
-    console.error(error);
+    console.error("CLOUDINARY UPLOAD ERROR:", error);
 
     return NextResponse.json(
       {
         success: false,
-        error: "Upload failed.",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Upload failed.",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
