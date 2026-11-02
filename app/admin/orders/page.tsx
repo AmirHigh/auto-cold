@@ -1,6 +1,21 @@
 import { prisma } from "@/lib/prisma";
 import { updateOrderStatus } from "@/app/admin/actions";
 
+type OrderWithCar = {
+id: number;
+fullName: string;
+phone: string;
+email: string | null;
+message: string | null;
+status: string;
+createdAt: Date;
+car: {
+brand: string;
+model: string;
+year: number;
+};
+};
+
 const statusLabels: Record<string, string> = {
 NEW: "جدید",
 PENDING: "در انتظار",
@@ -22,7 +37,7 @@ CANCELLED: "bg-red-500/10 text-red-400 border-red-500/20",
 };
 
 export default async function OrdersPage() {
-const orders = await prisma.order.findMany({
+const orders: OrderWithCar[] = await prisma.order.findMany({
 include: {
 car: true,
 },
