@@ -1,85 +1,117 @@
 generator client {
-  provider = "prisma-client-js"
+provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+provider = "postgresql"
+}
+
+enum UserRole {
+USER
+ADMIN
+}
+
+model User {
+id        Int      @id @default(autoincrement())
+name      String
+email     String   @unique
+password  String
+phone     String?
+city      String?
+role      UserRole @default(USER)
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+
+ads       CarAd[]
+favorites Favorite[]
 }
 
 model Car {
-  id          Int         @id @default(autoincrement())
-  brand       String
-  model       String
-  year        Int
-  price       String
-  image       String
-  description String?
+id          Int        @id @default(autoincrement())
+brand       String
+model       String
+year        Int
+price       String
+image       String
+description String?
+status      String     @default("AVAILABLE")
+createdAt   DateTime   @default(now())
+updatedAt   DateTime   @updatedAt
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  images      CarImage[]
-  orders      Order[]
+images      CarImage[]
+orders      Order[]
+favorites   Favorite[]
 }
 
 model CarImage {
-  id        Int      @id @default(autoincrement())
-  image     String
+id        Int      @id @default(autoincrement())
+image     String
+carId     Int
+createdAt DateTime @default(now())
 
-  carId     Int
-  car       Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
+car Car @relation(fields: [carId], references: [id], onDelete: Cascade)
 }
 
-
 model Order {
-  id        Int      @id @default(autoincrement())
+id        Int      @id @default(autoincrement())
+fullName  String
+phone     String
+email     String?
+message   String?
+status    String   @default("NEW")
+carId     Int
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
 
-  fullName  String
-  phone     String
-  email     String?
-  message   String?
-
-  status    String   @default("NEW")
-
-  carId     Int
-  car       Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+car Car @relation(fields: [carId], references: [id], onDelete: Cascade)
 }
 
 model Admin {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  password  String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-model SellAd {
-  id          Int          @id @default(autoincrement())
-  fullName    String
-  phone       String
-  email       String?
-  brand       String
-  model       String
-  year        Int
-  price       String
-  description String?
-  image       String
-  status      String       @default("PENDING")
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  images      SellAdImage[]
+id        Int      @id @default(autoincrement())
+username  String   @unique
+password  String
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
 }
 
-model SellAdImage {
-  id        Int      @id @default(autoincrement())
-  image     String
-  sellAdId  Int
-  sellAd    SellAd  @relation(fields: [sellAdId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+model CarAd {
+id          Int      @id @default(autoincrement())
+title       String
+brand       String
+model       String
+year        Int
+price       String
+description String?
+phone       String
+city        String
+status      String   @default("PENDING")
+createdAt   DateTime @default(now())
+updatedAt   DateTime @updatedAt
+userId      Int
+
+user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+images CarAdImage[]
+}
+
+model CarAdImage {
+id        Int      @id @default(autoincrement())
+image     String
+carAdId   Int
+createdAt DateTime @default(now())
+
+carAd CarAd @relation(fields: [carAdId], references: [id], onDelete: Cascade)
+}
+
+model Favorite {
+id        Int      @id @default(autoincrement())
+userId    Int
+carId     Int
+createdAt DateTime @default(now())
+
+user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+car  Car  @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+@@unique([userId, carId])
+@@index([userId])
+@@index([carId])
 }

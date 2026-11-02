@@ -1,122 +1,49 @@
 "use client";
 
-import { Car, Users, ShoppingBag, Star } from "lucide-react";
+import { Car } from "lucide-react";
 import FadeIn from "./FadeIn";
 import CountUp from "react-countup";
 
-export default function Stats() {
-  const stats = [
-    {
-      title: "خودرو موجود",
-      value: 250,
-      suffix: "+",
-      icon: Car,
-    },
-    {
-      title: "مشتری راضی",
-      value: 1200,
-      suffix: "+",
-      icon: Users,
-    },
-    {
-      title: "سفارش ثبت شده",
-      value: 500,
-      suffix: "+",
-      icon: ShoppingBag,
-    },
-    {
-      title: "رضایت مشتری",
-      value: 4.9,
-      suffix: "",
-      decimals: 1,
-      icon: Star,
-    },
-  ];
+type StatsProps = {
+availableCars: number;
+};
 
-  return (
-    <section className="py-14 sm:py-18 md:py-24 bg-slate-950">
+export default function Stats({ availableCars }: StatsProps) {
+return ( <section
+   dir="rtl"
+   className="bg-slate-950 py-12 sm:py-16 md:py-20"
+ > <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"> <FadeIn> <div className="mx-auto max-w-sm rounded-2xl border border-white/10 bg-slate-900 p-6 text-center transition duration-300 hover:-translate-y-1 hover:border-blue-500 hover:shadow-[0_0_35px_rgba(59,130,246,.2)] sm:rounded-3xl sm:p-8">
+{/* Icon */} <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-blue-600/20 sm:h-20 sm:w-20"> <Car
+             size={34}
+             className="text-blue-400 sm:h-10 sm:w-10"
+           /> </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+```
+        {/* Number */}
+        <h2 className="text-4xl font-black leading-none text-blue-400 sm:text-5xl">
+          <CountUp
+            key={availableCars}
+            start={0}
+            end={availableCars}
+            duration={1.5}
+            decimals={0}
+            separator=","
+          />
+        </h2>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 md:gap-8">
+        {/* Title */}
+        <p className="mt-4 text-base font-bold text-white sm:text-lg">
+          خودروهای موجود
+        </p>
 
-          {stats.map((item, index) => {
-            const Icon = item.icon;
-
-            return (
-              <FadeIn
-                key={item.title}
-                delay={index * 0.15}
-              >
-                <div
-                  className="
-                    h-full
-                    rounded-2xl sm:rounded-3xl
-                    bg-slate-900
-                    border border-white/10
-                    p-4 sm:p-6 md:p-8
-                    text-center
-                    hover:border-blue-500
-                    transition duration-300
-                    hover:-translate-y-1
-                    md:hover:-translate-y-2
-                    hover:shadow-[0_0_35px_rgba(59,130,246,.3)]
-                  "
-                >
-
-                  {/* Icon */}
-                  <div
-                    className="
-                      w-12 h-12
-                      sm:w-16 sm:h-16
-                      md:w-20 md:h-20
-                      rounded-full
-                      bg-blue-600/20
-                      mx-auto
-                      flex items-center justify-center
-                      mb-4 sm:mb-5 md:mb-6
-                    "
-                  >
-                    <Icon
-                      size={24}
-                      className="text-blue-400 sm:w-7 sm:h-7 md:w-[38px] md:h-[38px]"
-                    />
-                  </div>
-
-                  {/* Number */}
-                  <h3
-                    className="
-                      text-3xl
-                      sm:text-4xl
-                      md:text-5xl
-                      font-black
-                      text-blue-400
-                      leading-none
-                    "
-                  >
-                    <CountUp
-                      end={item.value}
-                      duration={2}
-                      decimals={item.decimals ?? 0}
-                    />
-
-                    {item.suffix}
-                  </h3>
-
-                  {/* Title */}
-                  <p className="text-gray-400 text-xs sm:text-sm md:text-base mt-3 sm:mt-4">
-                    {item.title}
-                  </p>
-
-                </div>
-              </FadeIn>
-            );
-          })}
-
-        </div>
-
+        <p className="mt-2 text-sm text-gray-400">
+          خودروهای آماده فروش در گالری AUTO COLD
+        </p>
       </div>
+    </FadeIn>
+  </div>
+</section>
 
-    </section>
-  );
+
+);
 }

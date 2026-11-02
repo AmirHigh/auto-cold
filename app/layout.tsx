@@ -1,49 +1,43 @@
+
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-import Navbar from "@/components/Navbar";
-
-import { Toaster } from "sonner";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import Header from "@/components/Header";
+import { getCurrentUser } from "@/lib/current-user";
 
 export const metadata: Metadata = {
-  title: "AUTO COLD",
-  description: "Luxury Car Showroom",
+  title: "AUTO COLD | Luxury Car Gallery",
+  description:
+    "AUTO COLD - گالری خودروهای لوکس و وارداتی، خرید و فروش خودروهای خاص",
+  applicationName: "AUTO COLD",
+  openGraph: {
+    title: "AUTO COLD | Luxury Car Gallery",
+    description:
+      "گالری خودروهای لوکس و وارداتی؛ مشاهده خودروها و ثبت سفارش",
+    siteName: "AUTO COLD",
+    locale: "fa_IR",
+    type: "website",
+  },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
+  const user = await getCurrentUser();
+
   return (
-    <html
-      lang="fa"
-      dir="rtl"
-      className={`${geistSans.variable} ${geistMono.variable}`}
-    >
-      <body className="bg-slate-950 text-white">
+    <html lang="fa" dir="rtl">
+      <body className="min-h-screen overflow-x-hidden bg-slate-950 text-white antialiased">
+        <Header user={user} />
 
-        <Navbar />
+        {/* فاصله برای هدر ثابت */}
+        <div className="h-[72px] sm:h-[80px] md:h-[88px]" />
 
-        {children}
-
-        <Toaster
-          richColors
-          position="top-right"
-        />
-
+        {/* محتوای صفحات */}
+        <main>{children}</main>
       </body>
     </html>
   );
 }
+

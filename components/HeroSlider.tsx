@@ -1,10 +1,10 @@
+
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-
 import {
   Navigation,
   Pagination,
@@ -31,215 +31,85 @@ type Props = {
 };
 
 export default function HeroSlider({ cars }: Props) {
+  if (cars.length === 0) return null;
+
   return (
     <section
-      className="
-        relative
-        h-[72vh]
-        min-h-[520px]
-        sm:h-[78vh]
-        sm:min-h-[580px]
-        md:h-[92vh]
-        md:min-h-0
-      "
+      aria-label="خودروهای منتخب AUTO COLD"
+      className="relative h-[calc(100svh-72px)] min-h-[560px] max-h-[850px] overflow-hidden bg-slate-950 sm:h-[calc(100svh-80px)] sm:min-h-[600px] md:h-[calc(100svh-88px)] md:min-h-[620px] md:max-h-[900px]"
     >
       <Swiper
-        modules={[
-          Navigation,
-          Pagination,
-          Autoplay,
-          EffectFade,
-        ]}
+        modules={[Navigation, Pagination, Autoplay, EffectFade]}
         navigation
         pagination={{ clickable: true }}
-        autoplay={{
-          delay: 4000,
-          disableOnInteraction: false,
-        }}
+        autoplay={
+          cars.length > 1
+            ? {
+                delay: 5000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }
+            : false
+        }
         effect="fade"
-        loop
-        className="h-full"
+        fadeEffect={{ crossFade: true }}
+        loop={cars.length > 1}
+        speed={650}
+        className="h-full w-full"
       >
-        {cars.map((car) => (
+        {cars.map((car, index) => (
           <SwiperSlide key={car.id}>
-            <div className="relative h-full w-full bg-slate-950">
-
-              {/* =========================
-                  CAR IMAGE
-                  ========================= */}
-
+            <div className="relative h-full w-full overflow-hidden bg-slate-950">
               <Image
                 src={car.image}
-                alt={`${car.brand} ${car.model}`}
+                alt={`${car.brand} ${car.model} مدل ${car.year}`}
                 fill
-                priority
+                priority={index === 0}
                 sizes="100vw"
-                className="
-                  object-contain
-                  object-center
-                  md:object-cover
-                "
+                className="object-contain object-center md:object-cover"
               />
 
-              {/* Dark overlay */}
-              <div className="absolute inset-0 bg-black/50 md:bg-black/55" />
-
-              {/* =========================
-                  CONTENT
-                  ========================= */}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-black/45 to-black/25 md:bg-gradient-to-r md:from-slate-950/90 md:via-slate-950/55 md:to-black/20" />
 
               <div className="absolute inset-0 flex items-center">
-                <div
-                  className="
-                    w-full
-                    max-w-7xl
-                    mx-auto
-                    px-5
-                    sm:px-8
-                    lg:px-8
-                  "
-                >
-                  <div
-                    className="
-                      max-w-2xl
-                      pt-16
-                      sm:pt-12
-                      md:pt-0
-                    "
-                  >
-
-                    {/* AUTO COLD */}
-                    <p
-                      className="
-                        text-blue-400
-                        text-sm
-                        sm:text-lg
-                        md:text-xl
-                        font-bold
-                        mb-2
-                        sm:mb-3
-                      "
-                    >
+                <div className="mx-auto w-full max-w-7xl px-4 sm:px-8 lg:px-10">
+                  <div className="max-w-2xl pt-4 sm:pt-0">
+                    <p className="mb-2 text-xs font-bold tracking-[0.22em] text-blue-400 sm:mb-3 sm:text-sm md:text-lg">
                       AUTO COLD
                     </p>
 
-                    {/* CAR NAME */}
-                    <h1
-                      className="
-                        text-4xl
-                        sm:text-5xl
-                        md:text-6xl
-                        lg:text-7xl
-                        font-black
-                        leading-[1.05]
-                        sm:leading-tight
-                        text-white
-                        break-words
-                        max-w-[90vw]
-                        sm:max-w-2xl
-                      "
-                    >
+                    <h1 className="max-w-full break-words text-3xl font-black leading-tight text-white min-[380px]:text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
                       {car.brand}
                       <br />
                       <span>{car.model}</span>
                     </h1>
 
-                    {/* SUBTITLE */}
-                    <p
-                      className="
-                        mt-3
-                        sm:mt-5
-                        md:mt-6
-                        text-gray-300
-                        text-sm
-                        sm:text-lg
-                        md:text-xl
-                      "
-                    >
+                    <p className="mt-3 text-sm text-gray-300 sm:mt-5 sm:text-base md:text-xl">
                       Luxury Car Gallery
                     </p>
 
-                    {/* PRICE */}
-                    <p
-                      className="
-                        mt-3
-                        sm:mt-5
-                        md:mt-6
-                        text-2xl
-                        sm:text-3xl
-                        font-bold
-                        text-blue-400
-                      "
-                    >
+                    <p className="mt-4 break-words text-xl font-bold text-blue-400 sm:mt-5 sm:text-2xl md:text-3xl">
                       {car.price}
                     </p>
 
-                    {/* BUTTONS */}
-                    <div
-                      className="
-                        flex
-                        flex-col
-                        sm:flex-row
-                        gap-3
-                        sm:gap-5
-                        mt-6
-                        sm:mt-8
-                        md:mt-10
-                        w-full
-                        sm:w-auto
-                      "
-                    >
+                    <div className="mt-6 flex w-full flex-col gap-3 min-[480px]:flex-row sm:mt-8 sm:w-auto sm:gap-4 md:mt-10">
                       <Link
                         href={`/cars/${car.id}`}
-                        className="
-                          flex
-                          items-center
-                          justify-center
-                          bg-blue-600
-                          hover:bg-blue-500
-                          transition
-                          px-6
-                          sm:px-8
-                          py-3
-                          sm:py-4
-                          rounded-xl
-                          font-bold
-                          text-white
-                          w-full
-                          sm:w-auto
-                        "
+                        className="flex min-h-12 w-full items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-center text-sm font-bold text-white shadow-lg shadow-blue-900/30 transition hover:bg-blue-500 active:scale-[0.98] min-[480px]:w-auto sm:px-7 sm:py-4 sm:text-base"
                       >
                         مشاهده خودرو
                       </Link>
 
                       <Link
                         href="/cars"
-                        className="
-                          flex
-                          items-center
-                          justify-center
-                          border
-                          border-white/40
-                          hover:bg-white/10
-                          transition
-                          px-6
-                          sm:px-8
-                          py-3
-                          sm:py-4
-                          rounded-xl
-                          text-white
-                          w-full
-                          sm:w-auto
-                        "
+                        className="flex min-h-12 w-full items-center justify-center rounded-xl border border-white/30 bg-black/20 px-5 py-3 text-center text-sm font-semibold text-white backdrop-blur-sm transition hover:border-white/60 hover:bg-white/10 active:scale-[0.98] min-[480px]:w-auto sm:px-7 sm:py-4 sm:text-base"
                       >
                         مشاهده همه خودروها
                       </Link>
                     </div>
-
                   </div>
                 </div>
               </div>
-
             </div>
           </SwiperSlide>
         ))}
@@ -247,3 +117,4 @@ export default function HeroSlider({ cars }: Props) {
     </section>
   );
 }
+

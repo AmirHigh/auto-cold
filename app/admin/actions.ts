@@ -1,184 +1,175 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-/* =========================
-   CREATE CAR
-========================= */
+async function requireAdmin() {
+const cookieStore = await cookies();
+const token = cookieStore.get("session")?.value;
 
-export async function createCar(formData: FormData) {
-  const brand = String(formData.get("brand") || "").trim();
-  const model = String(formData.get("model") || "").trim();
-  const year = Number(formData.get("year"));
-  const price = String(formData.get("price") || "").trim();
-  const image = String(formData.get("image") || "").trim();
-  const description = String(
-    formData.get("description") || ""
-  ).trim();
-
-  let images: string[] = [];
-
-  try {
-    images = JSON.parse(
-      String(formData.get("images") || "[]")
-    ) as string[];
-  } catch {
-    images = [];
-  }
-
-  const car = await prisma.car.create({
-    data: {
-      brand,
-      model,
-      year,
-      price,
-      image,
-      description,
-    },
-  });
-
-  if (images.length > 0) {
-    await prisma.carImage.createMany({
-      data: images.map((img) => ({
-        image: img,
-        carId: car.id,
-      })),
-    });
-  }
-
-  revalidatePath("/");
-  revalidatePath("/cars");
-  revalidatePath("/admin");
-
-  redirect("/admin?success=created");
+if (!token) {
+redirect("/admin/login");
 }
 
-/* =========================
-   UPDATE CAR
-========================= */
+const payload = await verifyToken(token);
 
-export async function updateCar(formData: FormData) {
-  const id = Number(formData.get("id"));
-
-  const brand = String(formData.get("brand") || "").trim();
-  const model = String(formData.get("model") || "").trim();
-  const year = Number(formData.get("year"));
-  const price = String(formData.get("price") || "").trim();
-  const image = String(formData.get("image") || "").trim();
-  const description = String(
-    formData.get("description") || ""
-  ).trim();
-
-  let images: string[] = [];
-
-  try {
-    images = JSON.parse(
-      String(formData.get("images") || "[]")
-    ) as string[];
-  } catch {
-    images = [];
-  }
-
-  await prisma.car.update({
-    where: {
-      id,
-    },
-    data: {
-      brand,
-      model,
-      year,
-      price,
-      image,
-      description,
-    },
-  });
-
-  await prisma.carImage.deleteMany({
-    where: {
-      carId: id,
-    },
-  });
-
-  if (images.length > 0) {
-    await prisma.carImage.createMany({
-      data: images.map((img) => ({
-        image: img,
-        carId: id,
-      })),
-    });
-  }
-
-  revalidatePath("/");
-  revalidatePath("/cars");
-  revalidatePath(`/cars/${id}`);
-  revalidatePath("/admin");
-
-  redirect("/admin?success=updated");
+if (
+!payload ||
+payload.role !== "ADMIN" ||
+typeof payload.adminId !== "number"
+) {
+redirect("/admin/login");
+}
 }
 
-/* =========================
-   DELETE CAR
-========================= */
+export async function approveCarAd(id: number) {
+await requireAdmin();
+
+await prisma.carAd.update({
+where: { id },
+data: { status: "APPROVED" },
+});
+
+revalidatePath("/admin");
+revalidatePath("/");
+revalidatePath("/sell");
+}
+
+export async function rejectCarAd(id: number) {
+await requireAdmin();
+
+await prisma.carAd.update({
+where: { id },
+data: { status: "REJECTED" },
+});
+
+revalidatePath("/admin");
+revalidatePath("/");
+revalidatePath("/sell");
+}
+
+export async function deleteCarAd(id: number) {
+await requireAdmin();
+
+try {
+await prisma.$transaction(async (tx) => {
+await tx.carAdImage.deleteMany({
+where: { carAdId: id },
+});
+
+
+  await tx.carAd.delete({
+    where: { id },
+  });
+});
+
+revalidatePath("/admin");
+revalidatePath("/");
+revalidatePath("/sell");
+
+return { success: true };
+
+
+} catch (error) {
+console.error("DELETE CAR AD ERROR:", error);
+
+
+return {
+  success: false,
+  message: "خطا در حذف آگهی",
+};
+
+
+}
+}
 
 export async function deleteCar(id: number) {
-  // سفارش‌های مربوط به خودرو
-  await prisma.order.deleteMany({
-    where: {
-      carId: id,
-    },
-  });
+await requireAdmin();
 
-  // تصاویر خودرو
-  await prisma.carImage.deleteMany({
-    where: {
-      carId: id,
-    },
-  });
+try {
+await prisma.car.delete({
+where: { id },
+});
 
-  // خود خودرو
-  await prisma.car.delete({
-    where: {
-      id,
-    },
-  });
 
-  revalidatePath("/");
-  revalidatePath("/cars");
-  revalidatePath("/admin");
+revalidatePath("/admin");
+revalidatePath("/");
+revalidatePath("/cars");
+
+return { success: true };
+
+
+} catch (error) {
+console.error("DELETE CAR ERROR:", error);
+
+
+return {
+  success: false,
+  message: "خطا در حذف خودرو",
+};
+
+
 }
-
-/* =========================
-   UPDATE ORDER STATUS
-========================= */
-
-export async function updateOrderStatus(
-  orderId: number,
-  status: string
-) {
-  await prisma.order.update({
-    where: {
-      id: orderId,
-    },
-    data: {
-      status,
-    },
-  });
-
-  revalidatePath("/admin");
 }
-
-/* =========================
-   DELETE ORDER
-========================= */
 
 export async function deleteOrder(id: number) {
-  await prisma.order.delete({
-    where: {
-      id,
-    },
-  });
+await requireAdmin();
 
-  revalidatePath("/admin");
+try {
+await prisma.order.delete({
+where: { id },
+});
+
+
+revalidatePath("/admin");
+revalidatePath("/admin/orders");
+
+return { success: true };
+
+
+} catch (error) {
+console.error("DELETE ORDER ERROR:", error);
+
+
+return {
+  success: false,
+  message: "خطا در حذف سفارش",
+};
+
+
+}
+}
+
+export async function updateOrderStatus(
+orderId: number,
+status: string
+) {
+await requireAdmin();
+
+const allowedStatuses = [
+"NEW",
+"PENDING",
+"CONFIRMED",
+"COMPLETED",
+"CANCELLED",
+];
+
+if (!Number.isInteger(orderId) || orderId <= 0) {
+throw new Error("شناسه سفارش معتبر نیست.");
+}
+
+if (!allowedStatuses.includes(status)) {
+throw new Error("وضعیت سفارش معتبر نیست.");
+}
+
+await prisma.order.update({
+where: { id: orderId },
+data: { status },
+});
+
+revalidatePath("/admin");
+revalidatePath("/admin/orders");
 }
