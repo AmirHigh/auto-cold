@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import type { Prisma } from "@prisma/client";
 
 async function requireAdmin() {
 const cookieStore = await cookies();
@@ -55,7 +56,7 @@ export async function deleteCarAd(id: number) {
 await requireAdmin();
 
 try {
-await prisma.$transaction(async (tx) => {
+await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
 await tx.carAdImage.deleteMany({
 where: { carAdId: id },
 });
