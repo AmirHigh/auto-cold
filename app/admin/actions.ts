@@ -55,15 +55,13 @@ export async function deleteCarAd(id: number) {
 await requireAdmin();
 
 try {
-await prisma.$transaction(async (tx) => {
-await tx.carAdImage.deleteMany({
+await prisma.carAdImage.deleteMany({
 where: { carAdId: id },
 });
 
 
-  await tx.carAd.delete({
-    where: { id },
-  });
+await prisma.carAd.delete({
+  where: { id },
 });
 
 revalidatePath("/admin");
