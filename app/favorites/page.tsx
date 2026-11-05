@@ -8,6 +8,23 @@ import FavoriteButton from "@/components/FavoriteButton";
 
 export const dynamic = "force-dynamic";
 
+type FavoriteCar = {
+  id: number;
+  brand: string;
+  model: string;
+  year: number;
+  price: string;
+  image: string | null;
+  status: string;
+  images: {
+    image: string;
+  }[];
+};
+
+type FavoriteItem = {
+  car: FavoriteCar;
+};
+
 export default async function FavoritesPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get("auto_cold_session")?.value;
@@ -40,26 +57,27 @@ export default async function FavoritesPage() {
     redirect("/login");
   }
 
-  const favorites = await prisma.favorite.findMany({
-    where: {
-      userId: user.id,
-    },
-    include: {
-      car: {
-        include: {
-          images: {
-            orderBy: {
-              createdAt: "asc",
+  const favorites: FavoriteItem[] =
+    await prisma.favorite.findMany({
+      where: {
+        userId: user.id,
+      },
+      include: {
+        car: {
+          include: {
+            images: {
+              orderBy: {
+                createdAt: "asc",
+              },
+              take: 1,
             },
-            take: 1,
           },
         },
       },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
   return (
     <main
@@ -84,7 +102,9 @@ export default async function FavoritesPage() {
 
         {favorites.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-slate-900 px-6 py-16 text-center">
-            <div className="mb-5 text-6xl text-red-500">♡</div>
+            <div className="mb-5 text-6xl text-red-500">
+              ♡
+            </div>
 
             <h2 className="text-xl font-bold">
               هنوز خودرویی ذخیره نکرده‌ای
@@ -108,7 +128,9 @@ export default async function FavoritesPage() {
             </p>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {favorites.map(({ car }) => {
+              {favorites.map((favorite: FavoriteItem) => {
+                const car = favorite.car;
+
                 const image =
                   car.images[0]?.image || car.image;
 
@@ -142,15 +164,15 @@ export default async function FavoritesPage() {
                           isSold
                             ? "bg-red-600 text-white"
                             : isReserved
-                            ? "bg-yellow-500 text-black"
-                            : "bg-green-500 text-white"
+                              ? "bg-yellow-500 text-black"
+                              : "bg-green-500 text-white"
                         }`}
                       >
                         {isSold
                           ? "فروخته شد"
                           : isReserved
-                          ? "رزرو شده"
-                          : "موجود"}
+                            ? "رزرو شده"
+                            : "موجود"}
                       </span>
                     </div>
 
