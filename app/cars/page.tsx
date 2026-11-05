@@ -12,6 +12,24 @@ type Props = {
   }>;
 };
 
+type BrandItem = {
+  brand: string;
+};
+
+type CarListItem = {
+  id: number;
+  brand: string;
+  model: string;
+  year: number;
+  price: string;
+  image: string | null;
+  description: string | null;
+  status: string;
+  images: {
+    image: string;
+  }[];
+};
+
 export default async function CarsPage({
   searchParams,
 }: Props) {
@@ -25,7 +43,7 @@ export default async function CarsPage({
   } = await searchParams;
 
   // دریافت برندهای موجود
-  const brandsData = await prisma.car.findMany({
+  const brandsData: BrandItem[] = await prisma.car.findMany({
     select: {
       brand: true,
     },
@@ -35,7 +53,9 @@ export default async function CarsPage({
     },
   });
 
-  const brands = brandsData.map((item) => item.brand);
+  const brands = brandsData.map(
+    (item: BrandItem) => item.brand
+  );
 
   // اعتبارسنجی سال ساخت
   const parsedYear =
@@ -87,99 +107,111 @@ export default async function CarsPage({
   }
 
   // جست‌وجو بر اساس برند، مدل و سال
-  const databaseCars = await prisma.car.findMany({
-    where: {
-      AND: [
-        brand
-          ? {
-              brand: {
-                equals: brand,
-                mode: "insensitive",
-              },
-            }
-          : {},
-
-        model?.trim()
-          ? {
-              OR: [
-                {
-                  model: {
-                    contains: model.trim(),
-                    mode: "insensitive",
-                  },
+  const databaseCars: CarListItem[] =
+    await prisma.car.findMany({
+      where: {
+        AND: [
+          brand
+            ? {
+                brand: {
+                  equals: brand,
+                  mode: "insensitive",
                 },
-                {
-                  brand: {
-                    contains: model.trim(),
-                    mode: "insensitive",
+              }
+            : {},
+
+          model?.trim()
+            ? {
+                OR: [
+                  {
+                    model: {
+                      contains: model.trim(),
+                      mode: "insensitive",
+                    },
                   },
-                },
-              ],
-            }
-          : {},
+                  {
+                    brand: {
+                      contains: model.trim(),
+                      mode: "insensitive",
+                    },
+                  },
+                ],
+              }
+            : {},
 
-        parsedYear
-          ? {
-              year: parsedYear,
-            }
-          : {},
-      ],
-    },
+          parsedYear
+            ? {
+                year: parsedYear,
+              }
+            : {},
+        ],
+      },
 
-    orderBy,
+      orderBy,
 
-    include: {
-      images: {
-        orderBy: {
-          createdAt: "asc",
+      include: {
+        images: {
+          orderBy: {
+            createdAt: "asc",
+          },
         },
       },
-    },
-  });
+    });
 
   // فیلتر قیمت
-  const filteredCars = databaseCars.filter((car) => {
-    const normalizedPrice = car.price.replace(/[,\s$€£]/g, "");
-    const numericPrice = Number(normalizedPrice);
-
-    if (
-      !Number.isFinite(numericPrice) ||
-      normalizedPrice === ""
-    ) {
-      return (
-        parsedMinPrice === undefined &&
-        parsedMaxPrice === undefined
+  const filteredCars = databaseCars.filter(
+    (car: CarListItem) => {
+      const normalizedPrice = car.price.replace(
+        /[,\s$€£]/g,
+        ""
       );
+
+      const numericPrice = Number(normalizedPrice);
+
+      if (
+        !Number.isFinite(numericPrice) ||
+        normalizedPrice === ""
+      ) {
+        return (
+          parsedMinPrice === undefined &&
+          parsedMaxPrice === undefined
+        );
+      }
+
+      if (
+        parsedMinPrice !== undefined &&
+        numericPrice < parsedMinPrice
+      ) {
+        return false;
+      }
+
+      if (
+        parsedMaxPrice !== undefined &&
+        numericPrice > parsedMaxPrice
+      ) {
+        return false;
+      }
+
+      return true;
     }
+  );
 
-    if (
-      parsedMinPrice !== undefined &&
-      numericPrice < parsedMinPrice
-    ) {
-      return false;
-    }
-
-    if (
-      parsedMaxPrice !== undefined &&
-      numericPrice > parsedMaxPrice
-    ) {
-      return false;
-    }
-
-    return true;
-  });
-
-  // تبدیل خروجی Prisma به ساختار مورد انتظار FeaturedCars
-  const cars = filteredCars.map((car) => ({
-    id: car.id,
-    brand: car.brand,
-    model: car.model,
-    year: car.year,
-    price: car.price,
-    image: car.images[0]?.image ?? car.image ?? null,
-    description: car.description,
-    status: car.status as "AVAILABLE" | "RESERVED" | "SOLD",
-  }));
+  // تبدیل خروجی به ساختار مورد انتظار FeaturedCars
+  const cars = filteredCars.map(
+    (car: CarListItem) => ({
+      id: car.id,
+      brand: car.brand,
+      model: car.model,
+      year: car.year,
+      price: car.price,
+      image: car.images[0]?.image ?? car.image ?? null,
+      description: car.description,
+      status: car.status as
+        | "AVAILABLE"
+        | "RESERVED"
+        | "SOLD",
+    })
+  );
 
   return (
     <main
@@ -243,7 +275,7 @@ export default async function CarsPage({
               >
                 <option value="">همه برندها</option>
 
-                {brands.map((item) => (
+                {brands.map((item: string) => (
                   <option key={item} value={item}>
                     {item}
                   </option>
@@ -349,11 +381,21 @@ export default async function CarsPage({
                 className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition"
               >
                 <option value="">جدیدترین خودروها</option>
-                <option value="brand-asc">برند: الف تا ی</option>
-                <option value="brand-desc">برند: ی تا الف</option>
-                <option value="year-new">سال: جدید به قدیم</option>
-                <option value="year-old">سال: قدیم به جدید</option>
-                <option value="model-asc">مدل: الف تا ی</option>
+                <option value="brand-asc">
+                  برند: الف تا ی
+                </option>
+                <option value="brand-desc">
+                  برند: ی تا الف
+                </option>
+                <option value="year-new">
+                  سال: جدید به قدیم
+                </option>
+                <option value="year-old">
+                  سال: قدیم به جدید
+                </option>
+                <option value="model-asc">
+                  مدل: الف تا ی
+                </option>
               </select>
             </div>
 
