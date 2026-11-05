@@ -1,5 +1,5 @@
-
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 import HeroSlider from "@/components/HeroSlider";
 import Stats from "@/components/Stats";
@@ -12,6 +12,8 @@ import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
+type Car = Prisma.CarGetPayload<{}>;
+
 export default async function HomePage() {
   // خودروهای اصلی گالری
   const cars = await prisma.car.findMany({
@@ -22,7 +24,7 @@ export default async function HomePage() {
 
   // محاسبه تعداد خودروهای آماده فروش از دیتابیس
   const availableCars = cars.filter(
-    (car) => car.status === "AVAILABLE"
+    (car: Car) => car.status === "AVAILABLE"
   ).length;
 
   // آگهی‌های تأییدشده کاربران
@@ -51,7 +53,7 @@ export default async function HomePage() {
 
       {/* خودروهای اصلی گالری */}
       <FeaturedCars
-        cars={cars.map((car) => ({
+        cars={cars.map((car: Car) => ({
           ...car,
           status: (
             ["AVAILABLE", "RESERVED", "SOLD"].includes(car.status)
@@ -94,7 +96,6 @@ export default async function HomePage() {
                     key={ad.id}
                     className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900 transition duration-300 hover:border-blue-500/50 sm:rounded-3xl"
                   >
-                    {/* تصویر خودرو */}
                     <div className="relative h-52 bg-slate-800 sm:h-60">
                       {firstImage && firstImage.startsWith("/") ? (
                         <Image
@@ -115,7 +116,6 @@ export default async function HomePage() {
                       </span>
                     </div>
 
-                    {/* اطلاعات خودرو */}
                     <div className="p-4 sm:p-6">
                       <h3 className="break-words text-lg font-bold sm:text-xl">
                         {ad.brand} {ad.model}
@@ -174,4 +174,3 @@ export default async function HomePage() {
     </main>
   );
 }
-
