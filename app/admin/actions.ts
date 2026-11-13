@@ -25,16 +25,36 @@ async function requireAdmin() {
   }
 }
 
+function getText(formData: FormData, key: string) {
+  return String(formData.get(key) || "").trim();
+}
+
 export async function createCar(formData: FormData) {
   await requireAdmin();
 
-  const brand = String(formData.get("brand") || "").trim();
-  const model = String(formData.get("model") || "").trim();
+  const brand = getText(formData, "brand");
+  const model = getText(formData, "model");
   const year = Number(formData.get("year"));
-  const price = String(formData.get("price") || "").trim();
-  const description = String(
-    formData.get("description") || ""
-  ).trim();
+  const price = getText(formData, "price");
+
+  const description = getText(formData, "description");
+
+  const mileage = getText(formData, "mileage");
+  const color = getText(formData, "color");
+
+  const engineType = getText(formData, "engineType");
+  const engineVolume = getText(formData, "engineVolume");
+  const cylinders = getText(formData, "cylinders");
+  const horsepower = getText(formData, "horsepower");
+  const transmission = getText(formData, "transmission");
+  const fuelType = getText(formData, "fuelType");
+
+  const bodyCondition = getText(formData, "bodyCondition");
+  const technicalCondition = getText(formData, "technicalCondition");
+  const paintCondition = getText(formData, "paintCondition");
+  const tireCondition = getText(formData, "tireCondition");
+
+  const features = getText(formData, "features");
 
   let images: string[] = [];
 
@@ -69,7 +89,7 @@ export async function createCar(formData: FormData) {
   }
 
   if (images.length > 10) {
-    throw new Error("حداکثر ۱۰ تصویر برای هر خودرو مجاز است.");
+    throw new Error("حداکثر ۱۰ تصویر مجاز است.");
   }
 
   await prisma.car.create({
@@ -79,8 +99,28 @@ export async function createCar(formData: FormData) {
       year,
       price,
       image: images[0],
+
       description: description || null,
+
+      mileage: mileage || null,
+      color: color || null,
+
+      engineType: engineType || null,
+      engineVolume: engineVolume || null,
+      cylinders: cylinders || null,
+      horsepower: horsepower || null,
+      transmission: transmission || null,
+      fuelType: fuelType || null,
+
+      bodyCondition: bodyCondition || null,
+      technicalCondition: technicalCondition || null,
+      paintCondition: paintCondition || null,
+      tireCondition: tireCondition || null,
+
+      features: features || null,
+
       status: "AVAILABLE",
+
       images: {
         create: images.map((image) => ({
           image,

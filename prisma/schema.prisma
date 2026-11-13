@@ -1,117 +1,139 @@
 generator client {
-provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-provider = "postgresql"
+  provider = "postgresql"
 }
 
 enum UserRole {
-USER
-ADMIN
+  USER
+  ADMIN
 }
 
 model User {
-id        Int      @id @default(autoincrement())
-name      String
-email     String   @unique
-password  String
-phone     String?
-city      String?
-role      UserRole @default(USER)
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  city      String?
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-ads       CarAd[]
-favorites Favorite[]
+  ads       CarAd[]
+  favorites Favorite[]
 }
 
 model Car {
-id          Int        @id @default(autoincrement())
-brand       String
-model       String
-year        Int
-price       String
-image       String
-description String?
-status      String     @default("AVAILABLE")
-createdAt   DateTime   @default(now())
-updatedAt   DateTime   @updatedAt
+  id          Int      @id @default(autoincrement())
+  brand       String
+  model       String
+  year        Int
+  price       String
+  image       String
+  description String?
+  status      String   @default("AVAILABLE")
 
-images      CarImage[]
-orders      Order[]
-favorites   Favorite[]
+  // مشخصات کلی خودرو
+  mileage String?
+  color   String?
+
+  // مشخصات فنی
+  engineType   String?
+  engineVolume String?
+  cylinders    String?
+  horsepower   String?
+  transmission String?
+  fuelType     String?
+
+  // وضعیت خودرو
+  bodyCondition      String?
+  technicalCondition String?
+  paintCondition     String?
+  tireCondition      String?
+
+  // امکانات رفاهی و آپشن‌ها
+  features String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images    CarImage[]
+  orders    Order[]
+  favorites Favorite[]
 }
 
 model CarImage {
-id        Int      @id @default(autoincrement())
-image     String
-carId     Int
-createdAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  image     String
+  carId     Int
+  createdAt DateTime @default(now())
 
-car Car @relation(fields: [carId], references: [id], onDelete: Cascade)
+  car Car @relation(fields: [carId], references: [id], onDelete: Cascade)
 }
 
 model Order {
-id        Int      @id @default(autoincrement())
-fullName  String
-phone     String
-email     String?
-message   String?
-status    String   @default("NEW")
-carId     Int
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  phone     String
+  email     String?
+  message   String?
+  status    String   @default("NEW")
+  carId     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-car Car @relation(fields: [carId], references: [id], onDelete: Cascade)
+  car Car @relation(fields: [carId], references: [id], onDelete: Cascade)
 }
 
 model Admin {
-id        Int      @id @default(autoincrement())
-username  String   @unique
-password  String
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CarAd {
-id          Int      @id @default(autoincrement())
-title       String
-brand       String
-model       String
-year        Int
-price       String
-description String?
-phone       String
-city        String
-status      String   @default("PENDING")
-createdAt   DateTime @default(now())
-updatedAt   DateTime @updatedAt
-userId      Int
+  id          Int      @id @default(autoincrement())
+  title       String
+  brand       String
+  model       String
+  year        Int
+  price       String
+  description String?
+  phone       String
+  city        String
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
 
-user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-images CarAdImage[]
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  images CarAdImage[]
 }
 
 model CarAdImage {
-id        Int      @id @default(autoincrement())
-image     String
-carAdId   Int
-createdAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  image     String
+  carAdId   Int
+  createdAt DateTime @default(now())
 
-carAd CarAd @relation(fields: [carAdId], references: [id], onDelete: Cascade)
+  carAd CarAd @relation(fields: [carAdId], references: [id], onDelete: Cascade)
 }
 
 model Favorite {
-id        Int      @id @default(autoincrement())
-userId    Int
-carId     Int
-createdAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  carId     Int
+  createdAt DateTime @default(now())
 
-user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-car  Car  @relation(fields: [carId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  car  Car  @relation(fields: [carId], references: [id], onDelete: Cascade)
 
-@@unique([userId, carId])
-@@index([userId])
-@@index([carId])
+  @@unique([userId, carId])
+  @@index([userId])
+  @@index([carId])
 }

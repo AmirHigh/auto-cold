@@ -19,6 +19,17 @@ export default async function HomePage() {
     },
   });
 
+  // بررسی آدرس تصاویر خودروها در ترمینال
+  console.log(
+    "AUTO COLD IMAGE URLS:",
+    cars.map((car) => ({
+      id: car.id,
+      brand: car.brand,
+      model: car.model,
+      image: car.image,
+    }))
+  );
+
   // محاسبه تعداد خودروهای آماده فروش از دیتابیس
   const availableCars = cars.filter(
     (car) => car.status === "AVAILABLE"
@@ -39,8 +50,31 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
+
       {/* اسلایدر اصلی */}
       {cars.length > 0 && <HeroSlider cars={cars} />}
+
+      {/* افکت انتقالی لوکس بین اسلایدر و بخش خودروهای موجود */}
+      <div className="pointer-events-none relative z-10 h-24 overflow-hidden sm:h-32">
+
+        {/* نور اصلی مرکزی */}
+        <div className="absolute left-1/2 top-1/2 h-16 w-[65%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/[0.13] blur-[55px] sm:h-24" />
+
+        {/* درخشش آبی گسترده */}
+        <div className="absolute left-1/2 top-1/2 h-20 w-[90%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/[0.08] blur-[75px] sm:h-28" />
+
+        {/* خط نوری ظریف */}
+        <div className="absolute left-1/2 top-1/2 h-px w-[82%] -translate-x-1/2 bg-gradient-to-r from-transparent via-cyan-300/50 to-transparent" />
+
+        {/* نقطه درخشان مرکزی */}
+        <div className="absolute left-1/2 top-1/2 h-1 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200/80 blur-[3px]" />
+
+        {/* نورهای کناری */}
+        <div className="absolute left-[15%] top-1/2 h-1 w-20 -translate-y-1/2 rounded-full bg-blue-400/30 blur-md" />
+
+        <div className="absolute right-[15%] top-1/2 h-1 w-20 -translate-y-1/2 rounded-full bg-blue-400/30 blur-md" />
+
+      </div>
 
       {/* آمار واقعی خودروهای موجود */}
       <Stats availableCars={availableCars} />
@@ -63,6 +97,7 @@ export default async function HomePage() {
       {/* آگهی‌های تأییدشده کاربران */}
       <section className="px-4 py-12 sm:px-6 sm:py-16">
         <div className="mx-auto max-w-7xl">
+
           <div className="mb-8 text-center sm:mb-10">
             <p className="mb-3 text-xs font-bold tracking-[0.2em] text-blue-400 sm:text-sm sm:tracking-[0.3em]">
               AUTO COLD MARKETPLACE
@@ -85,6 +120,7 @@ export default async function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+
               {approvedAds.map((ad) => {
                 const firstImage = ad.images[0]?.image;
 
@@ -93,13 +129,16 @@ export default async function HomePage() {
                     key={ad.id}
                     className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900 transition duration-300 hover:border-blue-500/50 sm:rounded-3xl"
                   >
+
                     {/* تصویر خودرو */}
                     <div className="relative h-52 bg-slate-800 sm:h-60">
-                      {firstImage && firstImage.startsWith("/") ? (
+
+                      {firstImage ? (
                         <Image
                           src={firstImage}
                           alt={`${ad.brand} ${ad.model}`}
                           fill
+                          unoptimized
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           className="object-cover"
                         />
@@ -112,10 +151,12 @@ export default async function HomePage() {
                       <span className="absolute right-3 top-3 rounded-lg bg-green-500 px-3 py-2 text-xs font-bold text-white sm:right-4 sm:top-4 sm:rounded-xl sm:px-4 sm:text-sm">
                         تأیید شده
                       </span>
+
                     </div>
 
                     {/* اطلاعات خودرو */}
                     <div className="p-4 sm:p-6">
+
                       <h3 className="break-words text-lg font-bold sm:text-xl">
                         {ad.brand} {ad.model}
                       </h3>
@@ -156,12 +197,15 @@ export default async function HomePage() {
                           {ad.phone}
                         </p>
                       </div>
+
                     </div>
                   </article>
                 );
               })}
+
             </div>
           )}
+
         </div>
       </section>
 
@@ -170,6 +214,7 @@ export default async function HomePage() {
 
       {/* دعوت به ثبت سفارش */}
       <CTA />
+
     </main>
   );
 }

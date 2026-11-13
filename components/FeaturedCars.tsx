@@ -174,18 +174,20 @@ export default function FeaturedCars({ cars }: Props) {
                     }
                   `}
                 >
+
                   {/* تصویر خودرو */}
                   <div className="relative h-60 overflow-hidden bg-slate-800 sm:h-64">
 
                     {/* دکمه علاقه‌مندی */}
                     <FavoriteButton carId={car.id} />
 
-                    {/* تصویر */}
-                    {car.image && car.image.startsWith("/") ? (
+                    {/* نمایش تصویر */}
+                    {car.image ? (
                       <Image
                         src={car.image}
                         alt={`${car.brand} ${car.model}`}
                         fill
+                        unoptimized
                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className={`
                           object-cover
