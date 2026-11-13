@@ -7,6 +7,7 @@ export async function logoutUser() {
   const cookieStore = await cookies();
 
   cookieStore.delete("auto_cold_session");
+  cookieStore.delete("session");
 
   redirect("/");
 }
