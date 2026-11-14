@@ -82,8 +82,9 @@ function getCarData(formData: FormData) {
 // =========================
 
 function validateCar(data: ReturnType<typeof getCarData>) {
-  if (!data.brand || !data.model || !data.price) {
-    throw new Error("لطفاً برند، مدل و قیمت خودرو را وارد کنید.");
+  // برند اختیاری است؛ مدل و قیمت اجباری هستند
+  if (!data.model || !data.price) {
+    throw new Error("لطفاً مدل و قیمت خودرو را وارد کنید.");
   }
 
   if (
@@ -115,6 +116,14 @@ function refreshCarPages(id?: number) {
 // =========================
 
 export async function createCar(formData: FormData) {
+  console.log("CREATE CAR - FORM CHECK:", {
+    brand: formData.get("brand"),
+    model: formData.get("model"),
+    year: formData.get("year"),
+    price: formData.get("price"),
+    fieldNames: Array.from(formData.keys()),
+  });
+
   const data = getCarData(formData);
   const images = getImages(formData);
 

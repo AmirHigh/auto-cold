@@ -11,21 +11,20 @@ type CarType = {
   price: string;
   image: string;
   description: string | null;
-
-  mileage?: string | null;
   color?: string | null;
+  mileage?: string | number | null;
   engineType?: string | null;
   engineVolume?: string | null;
-  cylinders?: string | null;
-  horsepower?: string | null;
+  cylinders?: string | number | null;
+  horsepower?: string | number | null;
   transmission?: string | null;
   fuelType?: string | null;
-
   bodyCondition?: string | null;
   technicalCondition?: string | null;
   paintCondition?: string | null;
   tireCondition?: string | null;
   features?: string | null;
+  images?: { url: string }[];
 };
 
 type Props = {
@@ -33,216 +32,200 @@ type Props = {
   car?: CarType;
 };
 
-const inputClass =
-  "w-full rounded-xl border border-slate-700 bg-slate-800 p-4 text-white outline-none transition focus:border-blue-500";
-
-const sectionClass =
-  "space-y-5 rounded-2xl border border-white/10 bg-slate-900 p-5 sm:p-7";
-
-function SectionTitle({
-  number,
-  title,
-  subtitle,
-}: {
-  number: string;
-  title: string;
-  subtitle: string;
-}) {
-  return (
-    <div className="border-b border-white/10 pb-4">
-      <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold">
-          {number}
-        </span>
-        <h2 className="text-xl font-black text-white">{title}</h2>
-      </div>
-      <p className="mt-2 text-sm text-gray-400">{subtitle}</p>
-    </div>
-  );
-}
+type FieldProps = {
+  name: string;
+  label: string;
+  type?: string;
+  defaultValue?: string | number | null;
+  placeholder?: string;
+};
 
 function Field({
-  label,
   name,
+  label,
+  type = "text",
   defaultValue,
   placeholder,
-  type = "text",
-}: {
-  label: string;
-  name: string;
-  defaultValue?: string | null;
-  placeholder?: string;
-  type?: string;
-}) {
+}: FieldProps) {
   return (
-    <label className="block space-y-2">
-      <span className="text-sm font-semibold text-gray-300">
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-slate-300">
         {label}
-      </span>
+      </label>
+
       <input
         name={name}
         type={type}
         defaultValue={defaultValue ?? ""}
-        placeholder={placeholder ?? label}
-        className={inputClass}
+        placeholder={placeholder}
+        className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-blue-500"
       />
-    </label>
+    </div>
   );
 }
 
-function TextAreaField({
-  label,
+function SelectField({
   name,
+  label,
   defaultValue,
-  placeholder,
-  rows = 4,
+  options,
 }: {
-  label: string;
   name: string;
+  label: string;
   defaultValue?: string | null;
-  placeholder?: string;
-  rows?: number;
+  options: string[];
 }) {
   return (
-    <label className="block space-y-2">
-      <span className="text-sm font-semibold text-gray-300">
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-slate-300">
         {label}
-      </span>
-      <textarea
+      </label>
+
+      <select
         name={name}
-        rows={rows}
         defaultValue={defaultValue ?? ""}
-        placeholder={placeholder ?? label}
-        className={`${inputClass} resize-y`}
-      />
-    </label>
+        className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none focus:border-blue-500"
+      >
+        <option value="">انتخاب کنید</option>
+
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }
 
 export default function AddCarForm({ action, car }: Props) {
   const [images, setImages] = useState<string[]>(
-    car?.image ? [car.image] : []
+    car?.images?.map((img) => img.url) ??
+      (car?.image ? [car.image] : [])
   );
 
-  const removeImage = (index: number) => {
-    setImages((previous) =>
-      previous.filter((_, i) => i !== index)
-    );
-  };
-
   return (
-    <form action={action} className="space-y-6" dir="rtl">
-      {car && (
-        <input type="hidden" name="id" value={car.id} />
-      )}
+    <form
+      action={action}
+      className="space-y-8"
+      dir="rtl"
+      onSubmit={(e) => {
+        const formData = new FormData(e.currentTarget);
 
-      {/* اطلاعات اولیه */}
+        console.log("FORM DATA CHECK:", {
+          brand: formData.get("brand"),
+          model: formData.get("model"),
+          year: formData.get("year"),
+          price: formData.get("price"),
+          fieldNames: Array.from(formData.keys()),
+        });
+      }}
+    >
+      {/* اطلاعات اصلی */}
 
-      <section className={sectionClass}>
-        <SectionTitle
-          number="۱"
-          title="اطلاعات اولیه خودرو"
-          subtitle="اطلاعات اصلی برای معرفی خودرو"
-        />
+      <section className="space-y-5">
+        <h2 className="text-xl font-bold text-blue-400">
+          اطلاعات اصلی خودرو
+        </h2>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <Field
             name="brand"
             label="برند خودرو"
             defaultValue={car?.brand}
-            placeholder="مثلاً Mercedes-Benz"
+            placeholder="مثلاً BMW"
           />
 
           <Field
             name="model"
             label="مدل خودرو"
             defaultValue={car?.model}
-            placeholder="مثلاً G63 AMG"
+            placeholder="مثلاً M4 Competition"
           />
 
           <Field
             name="year"
             label="سال ساخت"
             type="number"
-            defaultValue={car?.year?.toString()}
+            defaultValue={car?.year}
+            placeholder="2024"
           />
 
           <Field
             name="price"
             label="قیمت"
             defaultValue={car?.price}
-            placeholder="مثلاً 195,000 USD"
+            placeholder="مثلاً 82000"
           />
 
           <Field
             name="color"
             label="رنگ خودرو"
             defaultValue={car?.color}
-            placeholder="مثلاً مشکی متالیک"
+            placeholder="مشکی"
           />
 
           <Field
             name="mileage"
-            label="کارکرد"
+            label="کارکرد (کیلومتر)"
+            type="number"
             defaultValue={car?.mileage}
-            placeholder="مثلاً 25,000 کیلومتر"
+            placeholder="مثلاً 15000"
           />
         </div>
       </section>
 
       {/* تصاویر */}
 
-      <section className={sectionClass}>
-        <SectionTitle
-          number="۲"
-          title="گالری تصاویر"
-          subtitle="حداکثر ۱۰ تصویر برای معرفی خودرو"
-        />
+      <section className="space-y-5">
+        <h2 className="text-xl font-bold text-blue-400">
+          تصاویر خودرو
+        </h2>
 
         <ImageUploader
-          currentCount={images.length}
-          onUploaded={(urls) =>
-            setImages((previous) =>
-              [...previous, ...urls].slice(0, 10)
-            )
-          }
+          onUploaded={(urls) => {
+            setImages((prev) => [...prev, ...urls]);
+          }}
         />
 
         <input
           type="hidden"
           name="image"
           value={images[0] ?? ""}
+          readOnly
         />
 
         <input
           type="hidden"
           name="images"
           value={JSON.stringify(images)}
+          readOnly
         />
 
         {images.length > 0 && (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {images.map((img, index) => (
-              <div key={`${img}-${index}`} className="relative">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {images.map((url, index) => (
+              <div
+                key={`${url}-${index}`}
+                className="relative overflow-hidden rounded-xl border border-slate-700"
+              >
                 <img
-                  src={img}
-                  alt={`تصویر خودرو ${index + 1}`}
-                  className="h-32 w-full rounded-xl border border-slate-700 object-cover"
+                  src={url}
+                  alt={`Car ${index + 1}`}
+                  className="h-36 w-full object-cover"
                 />
 
                 <button
                   type="button"
-                  onClick={() => removeImage(index)}
-                  className="absolute right-2 top-2 rounded-lg bg-red-600 px-3 py-1 text-sm font-bold text-white"
+                  onClick={() =>
+                    setImages((prev) =>
+                      prev.filter((_, i) => i !== index)
+                    )
+                  }
+                  className="absolute left-2 top-2 rounded-lg bg-red-600 px-3 py-1 text-xs text-white"
                 >
                   حذف
                 </button>
-
-                {index === 0 && (
-                  <span className="absolute bottom-2 left-2 rounded-lg bg-blue-600 px-2 py-1 text-xs text-white">
-                    تصویر اصلی
-                  </span>
-                )}
               </div>
             ))}
           </div>
@@ -251,146 +234,137 @@ export default function AddCarForm({ action, car }: Props) {
 
       {/* مشخصات فنی */}
 
-      <section className={sectionClass}>
-        <SectionTitle
-          number="۳"
-          title="مشخصات فنی"
-          subtitle="اطلاعات موتور و عملکرد خودرو"
-        />
+      <section className="space-y-5">
+        <h2 className="text-xl font-bold text-blue-400">
+          مشخصات فنی
+        </h2>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <Field
             name="engineType"
             label="نوع موتور"
             defaultValue={car?.engineType}
-            placeholder="مثلاً V6"
+            placeholder="مثلاً V8"
           />
 
           <Field
             name="engineVolume"
             label="حجم موتور"
             defaultValue={car?.engineVolume}
-            placeholder="مثلاً 3.8 لیتر"
+            placeholder="مثلاً 4.0 لیتر"
           />
 
           <Field
             name="cylinders"
             label="تعداد سیلندر"
+            type="number"
             defaultValue={car?.cylinders}
-            placeholder="مثلاً ۶ سیلندر"
           />
 
           <Field
             name="horsepower"
-            label="قدرت موتور"
+            label="قدرت موتور (اسب بخار)"
+            type="number"
             defaultValue={car?.horsepower}
-            placeholder="مثلاً 315 اسب بخار"
           />
 
-          <Field
+          <SelectField
             name="transmission"
             label="گیربکس"
             defaultValue={car?.transmission}
-            placeholder="مثلاً اتوماتیک"
+            options={["اتوماتیک", "دستی", "نیمه اتوماتیک"]}
           />
 
-          <Field
+          <SelectField
             name="fuelType"
             label="نوع سوخت"
             defaultValue={car?.fuelType}
-            placeholder="مثلاً بنزین"
+            options={["بنزین", "دیزل", "هیبرید", "برقی"]}
           />
         </div>
       </section>
 
       {/* وضعیت خودرو */}
 
-      <section className={sectionClass}>
-        <SectionTitle
-          number="۴"
-          title="وضعیت خودرو"
-          subtitle="شرح وضعیت ظاهری و فنی خودرو"
-        />
+      <section className="space-y-5">
+        <h2 className="text-xl font-bold text-blue-400">
+          وضعیت خودرو
+        </h2>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <TextAreaField
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <SelectField
             name="bodyCondition"
             label="وضعیت بدنه"
             defaultValue={car?.bodyCondition}
-            placeholder="مثلاً بدون تصادف"
-            rows={3}
+            options={["سالم", "تصادفی", "دارای خط و خش"]}
           />
 
-          <TextAreaField
+          <SelectField
             name="technicalCondition"
             label="وضعیت فنی"
             defaultValue={car?.technicalCondition}
-            placeholder="مثلاً موتور و گیربکس سالم"
-            rows={3}
+            options={["سالم", "نیازمند تعمیر"]}
           />
 
-          <TextAreaField
+          <SelectField
             name="paintCondition"
             label="وضعیت رنگ"
             defaultValue={car?.paintCondition}
-            placeholder="مثلاً بدون رنگ"
-            rows={3}
+            options={["بدون رنگ", "یک لکه رنگ", "چند لکه رنگ", "تمام رنگ"]}
           />
 
-          <TextAreaField
+          <SelectField
             name="tireCondition"
-            label="وضعیت لاستیک‌ها"
+            label="وضعیت لاستیک"
             defaultValue={car?.tireCondition}
-            placeholder="مثلاً ۸۰ درصد"
-            rows={3}
+            options={["عالی", "خوب", "متوسط", "نیازمند تعویض"]}
           />
         </div>
       </section>
 
-      {/* امکانات رفاهی */}
+      {/* امکانات */}
 
-      <section className={sectionClass}>
-        <SectionTitle
-          number="۵"
-          title="امکانات رفاهی و آپشن‌ها"
-          subtitle="هر امکان را در یک خط وارد کن"
-        />
+      <section className="space-y-5">
+        <h2 className="text-xl font-bold text-blue-400">
+          امکانات و توضیحات
+        </h2>
 
-        <TextAreaField
-          name="features"
-          label="امکانات خودرو"
-          defaultValue={car?.features}
-          placeholder={
-            "سانروف\nصندلی برقی\nگرم‌کن صندلی\nدوربین عقب\nسیستم صوتی حرفه‌ای"
-          }
-          rows={7}
-        />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-slate-300">
+            امکانات خودرو
+          </label>
+
+          <textarea
+            name="features"
+            defaultValue={car?.features ?? ""}
+            rows={3}
+            placeholder="مثلاً سانروف، دوربین 360، گرمکن صندلی..."
+            className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none focus:border-blue-500"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-slate-300">
+            توضیحات خودرو
+          </label>
+
+          <textarea
+            name="description"
+            defaultValue={car?.description ?? ""}
+            rows={5}
+            placeholder="توضیحات کامل خودرو را وارد کنید..."
+            className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none focus:border-blue-500"
+          />
+        </div>
       </section>
 
-      {/* توضیحات تکمیلی */}
-
-      <section className={sectionClass}>
-        <SectionTitle
-          number="۶"
-          title="توضیحات تکمیلی"
-          subtitle="اطلاعاتی که در دسته‌بندی‌های بالا قرار نمی‌گیرند"
-        />
-
-        <TextAreaField
-          name="description"
-          label="توضیحات بیشتر"
-          defaultValue={car?.description}
-          placeholder="توضیحات تکمیلی درباره خودرو..."
-          rows={5}
-        />
-      </section>
+      {/* ثبت */}
 
       <button
         type="submit"
-        disabled={images.length === 0}
-        className="w-full rounded-xl bg-blue-600 py-4 text-lg font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-xl bg-blue-600 px-6 py-4 font-bold text-white transition hover:bg-blue-500"
       >
-        {car ? "ذخیره تغییرات" : "افزودن خودرو"}
+        {car ? "ذخیره تغییرات خودرو" : "ثبت خودرو"}
       </button>
     </form>
   );
