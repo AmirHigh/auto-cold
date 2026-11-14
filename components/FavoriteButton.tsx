@@ -23,16 +23,14 @@ export default function FavoriteButton({ carId }: Props) {
       .then((result) => {
         if (!active) return;
 
+        // فقط وضعیت قلب بررسی می‌شود؛
+        // پیام ورود در زمان بارگذاری نمایش داده نمی‌شود.
         if (result.ok) {
           setIsFavorite(result.isFavorite);
-        } else {
-          setMessage(result.message ?? "");
         }
       })
-      .catch(() => {
-        if (active) {
-          setMessage("بررسی علاقه‌مندی‌ها ناموفق بود.");
-        }
+      .catch((error) => {
+        console.error("Favorite status error:", error);
       })
       .finally(() => {
         if (active) {
@@ -55,13 +53,15 @@ export default function FavoriteButton({ carId }: Props) {
         const result = await toggleFavorite(carId);
 
         if (!result.ok) {
-          setMessage(result.message ?? "عملیات انجام نشد.");
+          // پیام فقط بعد از کلیک کاربر نمایش داده می‌شود.
+          setMessage(result.message ?? "برای افزودن به علاقه‌مندی‌ها ابتدا وارد حساب شوید.");
           return;
         }
 
         setIsFavorite(result.isFavorite);
         setMessage(result.message ?? "");
-      } catch {
+      } catch (error) {
+        console.error("Toggle favorite error:", error);
         setMessage("خطایی رخ داد. دوباره تلاش کن.");
       }
     });

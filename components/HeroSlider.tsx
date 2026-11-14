@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -7,12 +6,10 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import {
   Autoplay,
   EffectFade,
-  Navigation,
   Pagination,
 } from "swiper/modules";
 
 import "swiper/css";
-import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
@@ -112,10 +109,9 @@ export default function HeroSlider({ cars }: Props) {
   return (
     <section className="relative w-full overflow-hidden bg-[#020817]">
       <Swiper
-        modules={[Navigation, Pagination, Autoplay, EffectFade]}
+        modules={[Pagination, Autoplay, EffectFade]}
         effect="fade"
         fadeEffect={{ crossFade: true }}
-        navigation
         pagination={{ clickable: true }}
         autoplay={{
           delay: 5000,
@@ -131,7 +127,7 @@ export default function HeroSlider({ cars }: Props) {
 
           return (
             <SwiperSlide key={car.id}>
-              <div className="relative flex min-h-[850px] flex-col overflow-hidden bg-gradient-to-br from-[#102748] via-[#07152d] to-[#020817] md:min-h-[720px] md:flex-row-reverse md:items-center">
+              <div className="relative flex min-h-[unset] flex-col overflow-hidden bg-gradient-to-br from-[#102748] via-[#07152d] to-[#020817] md:min-h-[650px] md:flex-row-reverse md:items-center">
 
                 {/* Background Image */}
                 {car.image && (
@@ -155,23 +151,25 @@ export default function HeroSlider({ cars }: Props) {
 
                 <div className="pointer-events-none absolute -bottom-40 left-0 h-96 w-96 rounded-full bg-blue-500/10 blur-[110px]" />
 
-                {/* Car Image - Right Side */}
-                <div className="relative z-10 flex h-[470px] w-full items-center justify-center overflow-hidden px-0 pt-8 sm:h-[560px] md:h-[720px] md:w-[55%] md:justify-end md:pr-0 md:pl-6 md:pt-0">
+                {/* Car Image */}
+                <div className="relative z-10 flex h-[360px] w-full items-center justify-center overflow-hidden px-5 pt-6 sm:h-[430px] md:h-[650px] md:w-[52%] md:px-6 md:py-10">
 
                   {/* Ground Light */}
-                  <div className="pointer-events-none absolute bottom-12 right-0 h-32 w-full rounded-full bg-cyan-400/[0.12] blur-[65px] md:bottom-20" />
+                  <div className="pointer-events-none absolute bottom-10 left-[10%] right-[10%] h-24 rounded-full bg-cyan-400/[0.12] blur-[65px] md:bottom-16" />
 
-                  {/* Main Car Image */}
+                  {/* Image Frame */}
                   {car.image ? (
-                    <div className="relative h-full w-full max-w-[750px] md:mr-0">
+                    <div className="relative h-[88%] max-h-[390px] w-full max-w-[580px] overflow-hidden rounded-[24px] border border-cyan-300/20 bg-white/[0.025] shadow-[0_0_40px_rgba(34,211,238,0.08)] sm:rounded-[30px] md:h-[78%] md:max-h-[470px] md:rounded-[34px]">
+                      <div className="pointer-events-none absolute inset-0 z-10 rounded-[inherit] shadow-[inset_0_0_35px_rgba(34,211,238,0.08)]" />
+
                       <Image
                         src={car.image}
                         alt={`${car.brand} ${car.model}`}
                         fill
                         priority={index === 0}
                         unoptimized
-                        sizes="(max-width: 768px) 100vw, 55vw"
-                        className="object-contain object-center drop-shadow-[0_25px_45px_rgba(0,0,0,0.55)] md:object-right"
+                        sizes="(max-width: 768px) 95vw, 52vw"
+                        className="object-contain p-2 drop-shadow-[0_20px_35px_rgba(0,0,0,0.55)]"
                       />
                     </div>
                   ) : (
@@ -180,15 +178,15 @@ export default function HeroSlider({ cars }: Props) {
                     </div>
                   )}
 
-                  {/* Shadow Under Car Only */}
-                  <div className="pointer-events-none absolute bottom-5 left-[12%] right-[12%] z-20 h-12 rounded-full bg-black/50 blur-[35px]" />
+                  {/* Shadow Under Car */}
+                  <div className="pointer-events-none absolute bottom-5 left-[15%] right-[15%] z-20 h-10 rounded-full bg-black/50 blur-[30px]" />
 
-                  {/* Icy Blue Reflection */}
-                  <div className="pointer-events-none absolute bottom-3 left-[20%] right-[20%] z-20 h-8 rounded-full bg-cyan-300/10 blur-[30px]" />
+                  {/* Icy Reflection */}
+                  <div className="pointer-events-none absolute bottom-3 left-[22%] right-[22%] z-20 h-7 rounded-full bg-cyan-300/10 blur-[30px]" />
                 </div>
 
-                {/* Car Information - Left Side */}
-                <div className="relative z-30 flex w-full flex-col justify-center px-5 pb-20 pt-2 text-right sm:px-10 md:w-[45%] md:px-8 md:py-16 lg:px-14">
+                {/* Car Information */}
+                <div className="relative z-30 flex w-full flex-col justify-center px-5 pb-20 pt-4 text-right sm:px-10 md:w-[48%] md:px-8 md:py-12 lg:px-14">
 
                   {/* Brand */}
                   <div className="mb-5 flex items-center gap-2">
@@ -213,7 +211,7 @@ export default function HeroSlider({ cars }: Props) {
                   </h2>
 
                   {/* Year */}
-                  <div className="mt-4 flex items-center gap-3">
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
                     <span className="rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-bold text-cyan-300">
                       مدل {car.year}
                     </span>
@@ -225,7 +223,7 @@ export default function HeroSlider({ cars }: Props) {
 
                   {/* Specifications */}
                   {specifications.length > 0 && (
-                    <div className="mt-8">
+                    <div className="mt-7">
                       <div className="mb-4 flex items-center gap-2">
                         <span className="h-5 w-1 rounded-full bg-cyan-400" />
 
@@ -238,7 +236,7 @@ export default function HeroSlider({ cars }: Props) {
                         {specifications.slice(0, 6).map((item) => (
                           <div
                             key={item.label}
-                            className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.055] px-3 py-3 backdrop-blur-xl transition duration-300 hover:border-cyan-400/40 hover:bg-cyan-400/[0.07]"
+                            className="flex min-h-[68px] items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.055] px-3 py-3 backdrop-blur-xl transition duration-300 hover:border-cyan-400/40 hover:bg-cyan-400/[0.07]"
                           >
                             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10 text-lg">
                               {item.icon}
@@ -260,7 +258,7 @@ export default function HeroSlider({ cars }: Props) {
                   )}
 
                   {/* Price */}
-                  <div className="mt-7 rounded-2xl border border-cyan-400/20 bg-gradient-to-l from-cyan-400/10 to-transparent p-4">
+                  <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-gradient-to-l from-cyan-400/10 to-transparent p-4">
                     <p className="text-xs text-slate-400">
                       قیمت خودرو
                     </p>
@@ -271,7 +269,7 @@ export default function HeroSlider({ cars }: Props) {
                   </div>
 
                   {/* Buttons */}
-                  <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                     <Link
                       href={`/cars/${car.id}`}
                       className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-4 text-sm font-black text-white shadow-lg shadow-cyan-500/20 transition duration-300 hover:-translate-y-1 hover:shadow-cyan-500/40"
@@ -304,32 +302,8 @@ export default function HeroSlider({ cars }: Props) {
           overflow: hidden;
         }
 
-        .heroSwiper .swiper-button-next,
-        .heroSwiper .swiper-button-prev {
-          width: 44px;
-          height: 44px;
-          border: 1px solid rgba(34, 211, 238, 0.35);
-          border-radius: 14px;
-          background: rgba(2, 8, 23, 0.75);
-          color: #22d3ee;
-          backdrop-filter: blur(12px);
-          transition: 0.3s;
-        }
-
-        .heroSwiper .swiper-button-next:hover,
-        .heroSwiper .swiper-button-prev:hover {
-          background: rgba(34, 211, 238, 0.2);
-          border-color: #22d3ee;
-        }
-
-        .heroSwiper .swiper-button-next:after,
-        .heroSwiper .swiper-button-prev:after {
-          font-size: 16px;
-          font-weight: bold;
-        }
-
         .heroSwiper .swiper-pagination {
-          bottom: 18px !important;
+          bottom: 14px !important;
         }
 
         .heroSwiper .swiper-pagination-bullet {
@@ -345,27 +319,6 @@ export default function HeroSlider({ cars }: Props) {
           border-radius: 8px;
           background: #22d3ee;
           opacity: 1;
-        }
-
-        @media (max-width: 767px) {
-          .heroSwiper .swiper-button-next,
-          .heroSwiper .swiper-button-prev {
-            width: 32px;
-            height: 32px;
-          }
-
-          .heroSwiper .swiper-button-next:after,
-          .heroSwiper .swiper-button-prev:after {
-            font-size: 12px;
-          }
-
-          .heroSwiper .swiper-button-next {
-            right: 5px;
-          }
-
-          .heroSwiper .swiper-button-prev {
-            left: 5px;
-          }
         }
       `}</style>
     </section>
