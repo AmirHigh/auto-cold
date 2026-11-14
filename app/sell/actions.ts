@@ -7,6 +7,9 @@ import { revalidatePath } from "next/cache";
 import fs from "fs/promises";
 import path from "path";
 
+const MAX_IMAGES = 10;
+const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
+
 export async function createCarAd(formData: FormData) {
   const savedFiles: string[] = [];
   let adId: number | null = null;
@@ -44,24 +47,48 @@ export async function createCarAd(formData: FormData) {
     const phone = String(formData.get("phone") ?? "").trim();
     const city = String(formData.get("city") ?? "").trim();
 
-    if (!title || !brand || !model || !price || !phone || !city || !Number.isInteger(year)) {
-      return { success: false, message: "لطفاً تمام فیلدهای ضروری را تکمیل کنید." };
+    if (
+      !title ||
+      !brand ||
+      !model ||
+      !price ||
+      !phone ||
+      !city ||
+      !Number.isInteger(year)
+    ) {
+      return {
+        success: false,
+        message: "لطفاً تمام فیلدهای ضروری را تکمیل کنید.",
+      };
     }
 
     if (year < 1900 || year > 2100) {
-      return { success: false, message: "سال خودرو معتبر نیست." };
+      return {
+        success: false,
+        message: "سال خودرو معتبر نیست.",
+      };
     }
 
     const selectedFiles = formData.getAll("images");
+
     const imageFiles = selectedFiles.filter(
       (item): item is File => item instanceof File && item.size > 0
     );
 
-    if (imageFiles.length > 5) {
-      return { success: false, message: "حداکثر می‌توانید ۵ تصویر انتخاب کنید." };
+    // حداکثر ۱۰ تصویر
+    if (imageFiles.length > MAX_IMAGES) {
+      return {
+        success: false,
+        message: "حداکثر می‌توانید ۱۰ تصویر انتخاب کنید.",
+      };
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+
     const extensions: Record<string, string> = {
       "image/jpeg": ".jpg",
       "image/png": ".png",
@@ -70,11 +97,17 @@ export async function createCarAd(formData: FormData) {
 
     for (const file of imageFiles) {
       if (!allowedTypes.includes(file.type)) {
-        return { success: false, message: "فرمت تصاویر باید JPG، PNG یا WebP باشد." };
+        return {
+          success: false,
+          message: "فرمت تصاویر باید JPG، PNG یا WebP باشد.",
+        };
       }
 
-      if (file.size > 8 * 1024 * 1024) {
-        return { success: false, message: "حجم هر تصویر نباید بیشتر از ۸ مگابایت باشد." };
+      if (file.size > MAX_IMAGE_SIZE) {
+        return {
+          success: false,
+          message: "حجم هر تصویر نباید بیشتر از ۸ مگابایت باشد.",
+        };
       }
     }
 
@@ -89,21 +122,35 @@ export async function createCarAd(formData: FormData) {
         phone,
         city,
         status: "PENDING",
-        user: { connect: { id: userId } },
+        user: {
+          connect: { id: userId },
+        },
       },
     });
 
     adId = ad.id;
 
-    const uploadDirectory = path.join(process.cwd(), "public", "uploads", "ads");
+    const uploadDirectory = path.join(
+      process.cwd(),
+      "public",
+      "uploads",
+      "ads"
+    );
+
     await fs.mkdir(uploadDirectory, { recursive: true });
 
     for (let index = 0; index < imageFiles.length; index++) {
       const file = imageFiles[index];
+
       const fileName = `ad-${ad.id}-${Date.now()}-${index}${extensions[file.type]}`;
+
       const filePath = path.join(uploadDirectory, fileName);
 
-      await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
+      await fs.writeFile(
+        filePath,
+        Buffer.from(await file.arrayBuffer())
+      );
+
       savedFiles.push(filePath);
 
       await prisma.carAdImage.create({
@@ -117,24 +164,32 @@ export async function createCarAd(formData: FormData) {
     revalidatePath("/");
     revalidatePath("/sell");
     revalidatePath("/admin");
+    revalidatePath("/account/ads");
 
     return {
       success: true,
       message: imageFiles.length
-        ? "آگهی و تصاویر با موفقیت ثبت شدند."
+        ? `آگهی و ${imageFiles.length} تصویر با موفقیت ثبت شدند.`
         : "آگهی ثبت شد؛ تصویری انتخاب نشده بود.",
     };
   } catch (error) {
     console.error("CREATE CAR AD ERROR:", error);
 
     await Promise.all(
-      savedFiles.map((filePath) => fs.unlink(filePath).catch(() => undefined))
+      savedFiles.map((filePath) =>
+        fs.unlink(filePath).catch(() => undefined)
+      )
     );
 
     if (adId !== null) {
       try {
-        await prisma.carAdImage.deleteMany({ where: { carAdId: adId } });
-        await prisma.carAd.delete({ where: { id: adId } });
+        await prisma.carAdImage.deleteMany({
+          where: { carAdId: adId },
+        });
+
+        await prisma.carAd.delete({
+          where: { id: adId },
+        });
       } catch (cleanupError) {
         console.error("CREATE AD CLEANUP ERROR:", cleanupError);
       }
@@ -153,14 +208,25 @@ export async function deleteMyCarAd(id: number) {
     const token = cookieStore.get("auto_cold_session")?.value;
 
     if (!token) {
-      return { success: false, message: "ابتدا وارد حساب کاربری شوید." };
+      return {
+        success: false,
+        message: "ابتدا وارد حساب کاربری شوید.",
+      };
     }
 
     const payload = await verifyToken(token);
     const userId = Number(payload?.userId);
 
-    if (!Number.isInteger(userId) || userId <= 0 || !Number.isInteger(id) || id <= 0) {
-      return { success: false, message: "اطلاعات کاربر یا آگهی معتبر نیست." };
+    if (
+      !Number.isInteger(userId) ||
+      userId <= 0 ||
+      !Number.isInteger(id) ||
+      id <= 0
+    ) {
+      return {
+        success: false,
+        message: "اطلاعات کاربر یا آگهی معتبر نیست.",
+      };
     }
 
     const ad = await prisma.carAd.findFirst({
@@ -176,19 +242,34 @@ export async function deleteMyCarAd(id: number) {
     }
 
     await prisma.$transaction(async (tx) => {
-      await tx.carAdImage.deleteMany({ where: { carAdId: id } });
-      await tx.carAd.delete({ where: { id, userId } });
+      await tx.carAdImage.deleteMany({
+        where: { carAdId: id },
+      });
+
+      await tx.carAd.delete({
+        where: { id, userId },
+      });
     });
 
-    const uploadDirectory = path.join(process.cwd(), "public", "uploads", "ads");
+    const uploadDirectory = path.join(
+      process.cwd(),
+      "public",
+      "uploads",
+      "ads"
+    );
 
     for (const image of ad.images) {
       if (!image.image.startsWith("/uploads/ads/")) continue;
 
       const fileName = path.basename(image.image);
-      if (!fileName || fileName === "." || fileName === "..") continue;
 
-      await fs.unlink(path.join(uploadDirectory, fileName)).catch((error) => {
+      if (!fileName || fileName === "." || fileName === "..") {
+        continue;
+      }
+
+      await fs.unlink(
+        path.join(uploadDirectory, fileName)
+      ).catch((error) => {
         console.error("DELETE AD IMAGE ERROR:", error);
       });
     }
@@ -197,10 +278,18 @@ export async function deleteMyCarAd(id: number) {
     revalidatePath("/sell");
     revalidatePath(`/sell/${id}`);
     revalidatePath("/admin");
+    revalidatePath("/account/ads");
 
-    return { success: true, message: "آگهی با موفقیت حذف شد." };
+    return {
+      success: true,
+      message: "آگهی با موفقیت حذف شد.",
+    };
   } catch (error) {
     console.error("DELETE MY CAR AD ERROR:", error);
-    return { success: false, message: "حذف آگهی انجام نشد. دوباره تلاش کنید." };
+
+    return {
+      success: false,
+      message: "حذف آگهی انجام نشد. دوباره تلاش کنید.",
+    };
   }
 }

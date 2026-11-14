@@ -13,6 +13,20 @@ function getText(formData: FormData, key: string) {
 }
 
 // =========================
+// اعتبارسنجی سال شمسی و میلادی
+// =========================
+
+function isValidYear(year: number) {
+  return (
+    Number.isInteger(year) &&
+    (
+      (year >= 1300 && year <= 1500) ||
+      (year >= 1900 && year <= 2100)
+    )
+  );
+}
+
+// =========================
 // دریافت تصاویر
 // =========================
 
@@ -82,17 +96,16 @@ function getCarData(formData: FormData) {
 // =========================
 
 function validateCar(data: ReturnType<typeof getCarData>) {
-  // برند اختیاری است؛ مدل و قیمت اجباری هستند
+  // برند اختیاری است
   if (!data.model || !data.price) {
     throw new Error("لطفاً مدل و قیمت خودرو را وارد کنید.");
   }
 
-  if (
-    !Number.isInteger(data.year) ||
-    data.year < 1900 ||
-    data.year > 2100
-  ) {
-    throw new Error("سال ساخت معتبر نیست.");
+  // قبول سال شمسی و میلادی
+  if (!isValidYear(data.year)) {
+    throw new Error(
+      "سال ساخت معتبر نیست. سال شمسی یا میلادی را وارد کنید."
+    );
   }
 }
 
@@ -185,12 +198,9 @@ export async function updateCar(formData: FormData) {
     brand: submittedData.brand || existingCar.brand,
     model: submittedData.model || existingCar.model,
 
-    year:
-      Number.isInteger(submittedData.year) &&
-      submittedData.year >= 1900 &&
-      submittedData.year <= 2100
-        ? submittedData.year
-        : existingCar.year,
+    year: isValidYear(submittedData.year)
+      ? submittedData.year
+      : existingCar.year,
 
     price: submittedData.price || existingCar.price,
 

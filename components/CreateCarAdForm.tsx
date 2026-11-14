@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useRef, useState } from "react";
@@ -12,7 +11,7 @@ type Props = {
   };
 };
 
-const MAX_IMAGES = 5;
+const MAX_IMAGES = 10;
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 
 export default function CreateCarAdForm({ user }: Props) {
@@ -33,7 +32,7 @@ export default function CreateCarAdForm({ user }: Props) {
     if (files.length > MAX_IMAGES) {
       event.target.value = "";
       setSelectedCount(0);
-      setError("حداکثر می‌توانید ۵ تصویر انتخاب کنید.");
+      setError("حداکثر می‌توانید ۱۰ تصویر انتخاب کنید.");
       return;
     }
 
@@ -250,12 +249,12 @@ export default function CreateCarAdForm({ user }: Props) {
         />
 
         <p className="mt-2 text-xs text-gray-400">
-          حداکثر ۵ تصویر؛ فرمت JPG، PNG یا WebP و حجم هر تصویر حداکثر ۸ مگابایت.
+          امکان انتخاب ۱ تا ۱۰ تصویر؛ فرمت JPG، PNG یا WebP و حجم هر تصویر حداکثر ۸ مگابایت.
         </p>
 
         {selectedCount > 0 && (
           <p className="mt-2 text-sm text-blue-400">
-            {selectedCount} تصویر انتخاب شده است.
+            {selectedCount} از ۱۰ تصویر انتخاب شده است.
           </p>
         )}
       </div>
